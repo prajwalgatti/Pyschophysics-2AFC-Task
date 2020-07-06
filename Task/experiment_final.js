@@ -47,8 +47,8 @@ var experiment_timeline = [];
 var bock_idx, trial_idx;
 var block_num=0, trial_num=0;
 const ResponseCode = {
-	no_change: 73, /* 73: i/I */
-	change: 77 /* 77: m/M*/
+	no_change_key: 73, /* 73: i/I */
+	change_key: 77 /* 77: m/M*/
 };
 
 window_h = window.screen.height;
@@ -62,16 +62,19 @@ probe_width  = (10*window_h)/1080;
 var stim = generateGaborStimulus(block_num, trial_num, stim_size);
 
 /* Init experiment variables*/
-var session_data = {
-	total_scores: [],
-	all_responses: [],
-};
+var score_arr = []
 var score = {
-	score.total: 0,
-	score.gi: 0,
-	score.li: 0,
-	score.net:0
+	trial: 0,
+	total: 0,
+	gi: 0,
+	li: 0,
+	gf: 0,
+	la: 0,
+	net: 0,
+	netgi: 0,
+	netla: 0
 };
+var feedback_text;
 
 
 /******************************/
@@ -108,7 +111,8 @@ var inter_block_break = {
 	choices: jsPsych.NO_KEYS,
 	on_finish: function(){
 		score_arr.push(score);
-		score = {total:0, gi:0, li:0, net:0};
+		var score = {trial: 0, total: 0, gi: 0, li: 0, gf: 0,
+			la: 0, net: 0, netgi: 0, netla: 0};
 	}
 };
 
@@ -205,10 +209,10 @@ var probe_and_response_phase = {
 			    '</svg>';
     },
     trial_duration: t_response,
-    choices: [ResponseCode.no_change, ResponseCode.change],
+    choices: [ResponseCode.no_change_key, ResponseCode.change_key],
     data : {test_part: 'Probe_and_response'},
     on_finish: function(data){
-    	AssessReward(data.key_press, ResponseCode);
+    	[score, feedback_text] = assessResponse(data.key_press, ResponseCode, block_num, trial_num, score);
     }
 };
 
@@ -229,7 +233,8 @@ var response_feedback_gap = {
 var feedback_phase = {
     type: 'html-keyboard-response',
     stimulus: function(){
-    	return	'<svg id="svg">' +
+    	return	feedback_text +
+    			'<svg id="svg">' +
 			    '<circle class="reward-cue-left"  style="fill:'+rewardcolors[block_num][0]+';"/>'+
 			    '<circle class="reward-cue-right" style="fill:'+rewardcolors[block_num][1]+';"/>'+
 	            '</svg>';
