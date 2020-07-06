@@ -62,7 +62,7 @@ probe_width  = (10*window_h)/1080;
 var stim = generateGaborStimulus(block_num, trial_num, stim_size);
 
 /* Init experiment variables*/
-var score_arr = []
+var score_arr = [];
 var score = {
 	trial: 0,
 	total: 0,
@@ -109,7 +109,7 @@ var inter_block_break = {
 	stimulus: 'Next block starts soon.',
 	trial_duration: t_interblockbreak,
 	choices: jsPsych.NO_KEYS,
-	on_finish: function(){
+	on_finish: function(score){
 		score_arr.push(score);
 		var score = {trial: 0, total: 0, gi: 0, li: 0, gf: 0,
 			la: 0, net: 0, netgi: 0, netla: 0};
@@ -250,9 +250,36 @@ var feedback_phase = {
     	} else {
     		trial_num++;
     	}
-
     }
 };
+
+var feedback_phase_ = {
+	type: 'audio-keyboard-response',
+	stimulus: function(){
+		return ;
+	},
+	trial_duration: t_feedback,
+	prompt:'<svg>'+
+    '<svg id="feedback-pie-chart" x="40%" y="40%" width="20%" height="20%" viewBox="-1 -1 2 2"></svg>' + 
+    '<circle class="reward-cue-left"/>'+
+    '<circle class="reward-cue-right"/>'+
+    '</svg>'+
+    '<p style="position:relative;z-index:1;">'+feedback_text+'</p>',
+	choices: jsPsych.NO_KEYS,
+	on_load: function(){
+
+	},
+	on_finish: function(){
+    	console.log(`block: ${block_num}...trial: ${trial_num}`);
+    	if(trial_num == numtrials-1){
+    		block_num = block_num + 1; 
+    		trial_num = 0;
+    	} else {
+    		trial_num++;
+    	}
+    }
+};
+
 
 /************************************/
 /* Generate experiment timeline */

@@ -77,3 +77,8 @@ const t_intertrialbreak = 2000;
 
 /* Inter-block interval */
 const t_interblockbreak = 10000;
+
+/***********************************/
+/* Feedback  */
+/***********************************/
+const audio_files = ['audio_files/correct.wav', 'audio_files/incorrect.wav'];

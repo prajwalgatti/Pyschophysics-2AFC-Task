@@ -55,20 +55,6 @@ var welcome = {
 };
 
 function drawPieChart(){
-    // function getPath(angle, pie){
-    //     var x, y, angle_in_rads, path;
-    //     if(angle>180){
-    //         console.log('Warning! Pie chart feedback angle greater than 180 deg.');
-    //         angle = 180;
-    //     }
-    //     angle_in_rads = (90+angle) * Math.PI/180;
-    //     y = pie.r * (1 - Math.sin(angle_in_rads));
-    //     x_1 = pie.r * Math.cos(angle_in_rads);
-    //     x_2 = pie.r * Math.cos(2*(Math.PI - angle_in_rads));
-    //     path = "m"+[pie.cx, pie.cy]+"v"+[-pie.r]+"a"+[pie.r,pie.r]+' 0 0,0 ' + [x_1,y] +'z';// + "m"+[pie.cx, pie.cy]+"v"+[-pie.r]+"a"+[pie.r,pie.r]+' 0 0,1 ' + [x_2,y] +'z';
-    //     console.log(path);
-    //     return path;
-    // };
     function getPath(angle, pie){
         var x, y, angle_in_rads;
         if(angle>180){
