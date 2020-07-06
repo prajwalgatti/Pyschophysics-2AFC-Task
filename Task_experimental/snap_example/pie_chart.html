@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Introducing Snap.svg</title>
+    <script src="snap.svg-min.js"></script>
+</head>
+<body>
+    <svg class="piesvg" xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="-1 -1 2 2" style=" background-color:rgb(127, 127, 127); border: 1px solid #cccccc;"></svg>
+    <script>
+
+        function getPath(angle, pie){
+            var x, y, angle_in_rads;
+            if(angle>180){
+                console.log('Warning! Pie chart feedback angle greater than 180 deg.');
+                angle = 180;
+            }
+            angle_in_rads = (90+angle) * Math.PI/180;
+            y = pie.r * (1 - Math.sin(angle_in_rads));
+            x = pie.r * Math.cos(angle_in_rads);
+            return "m"+[pie.cx, pie.cy]+"v"+[-pie.r]+"a"+[pie.r,pie.r]+' 0 0,0 ' + [x,y] +'z' + 
+            "m"+[pie.cx, pie.cy]+"v"+[-pie.r]+"a"+[pie.r,pie.r]+' 0 0,1 ' + [-x,y] +'z'; 
+        }
+
+        var s = Snap(".piesvg");
+        var t1 = s.text(0, 0, "Snap");
+        var myCircle = s.circle(0, 0, 0.98);
+        myCircle.attr({
+            fill:'none', 
+            stroke:'#ffffff', 
+            style:'stroke-width: 0.02'
+        });
+        var pie = {
+            cx: 0, 
+            cy: 0,
+            r:  0.98
+        };
+        var sector = s.path(getPath(0, pie));
+        sector.attr({
+            fill: '#ffffff',
+            stroke:'none',
+            style:'stroke-width: 0.0'
+        });
+        
+        Snap.animate(30,180, function(val){
+            sector.attr({
+                d: getPath(val, pie)
+            });
+        }, 1000);
+
+    </script>
+</body>
+</html> 

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<head>
+    <title>2-AFC Reward Task</title>
+
+    <link href="js/jspsych/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+    <link rel="stylesheet" href="js/gaborgen/css/jquery-ui.min.css">
+    <link rel='stylesheet' type='text/css' href='css/default_style.css'>
+    <!-- Library Scripts-->
+    <script src="js/snap.svg-min.js"></script>
+    <script src="js/d3-random.v2.min.js"></script>
+    <script src="js/jspsych/jspsych.js"></script>
+    <script src="js/jspsych/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="js/jspsych/plugins/jspsych-fullscreen.js"></script>
+    <!-- <script src="js/jspsych/plugins/jspsych-call-function.js"></script> -->
+    <script src="js/jspsych/custom-call-function.js"></script>
+    <script src="js/gaborgen/numeric.min.js"></script>
+    <script src="js/gaborgen/jquery-min.js" type="text/javascript"></script>
+    <script src="js/gaborgen/jquery-ui.min.js"></script>
+    <script src="js/gaborgen/gab.js"></script>
+    <!-- Experiment scripts -->
+    <script src="assessResponse.js"></script>
+    <script src="stim_config.js"></script>
+    <script src="task_config.js"></script>
+    <script src="experiment_final.js"></script>
+</head>
+<body></body>
+    <script>
+        jsPsych.init({
+            timeline: experiment_timeline,
+            on_finish: function() {
+                jsPsych.data.displayData();
+            }
+        });
+    </script>
+</html>

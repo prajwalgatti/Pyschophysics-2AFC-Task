@@ -1,0 +1,76 @@
+.centerbox {
+    width: 50vw;
+    height: 60vh;
+    position:absolute;
+    top:50%;
+    left:50%;
+    margin-right:-50%;
+    transform: translate(-50%,-50%);
+  }
+
+.fixation {
+    text-align: center;
+    font-size: 50px;
+    position: relative;
+    top: 50%; 
+    transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+  }
+
+html, body {
+  margin:0;
+  padding:0;
+  overflow:hidden;
+  background-color:rgb(127, 127, 127);
+}
+
+svg {
+  position:fixed;
+  top:0;
+  left:0;
+  height:100%;
+  width:100%;
+}
+
+.fixation-point {
+  cx: 50%;
+  cy: 50%;
+  r: 0.416667%;
+  fill: #ffffff;
+  stroke: #000000; 
+  stroke-width: 1;
+}
+
+.left-stim {
+  x: 31.77083%;
+  y: 50%;
+}
+
+.right-stim {
+  x: 68.22916%;
+  y: 50%;
+}
+
+.probe-empty {
+ fill: none;
+ stroke: yellow;
+ stroke-width: 1px;
+}
+
+.probe-fill {
+  fill: yellow;
+  stroke: yellow;
+  stroke-width: 1px;
+}
+
+.reward-cue-left {
+  cx: 8.33333%;
+  cy: 50%;
+  r: 0.78125%;
+}
+
+.reward-cue-right {
+  cx: 91.66666%;
+  cy: 50%;
+  r: 0.78125%;
+}
