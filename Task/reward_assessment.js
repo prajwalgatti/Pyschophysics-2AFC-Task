@@ -1,0 +1,3 @@
+function AssessReward(keypress, ResponseCode){
+	
+}

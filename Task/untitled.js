@@ -29,14 +29,36 @@ function getstim_change_phase(stim, stim_radius){
 
 function getstim_probe(){
 	var probe = block_info[block_num][0].Probe[trial_num];
-	var right_probe_path = ''+(cx+2)+','+(cy+probe_width)+' '+ (cx+2+2*probe_height)+','+(cy)+' '+(cx+2)+','+(cy-probe_width)+'';
-	var left_probe_path = ''+(cx-2)+','+(cy+probe_width)+' '+ (cx-2-2*probe_height)+','+(cy)+' '+(cx-2)+','+(cy-probe_width)+'';
 	if(probe == -1){
 		return '<polygon class="probe-fill"  points= "'+ left_probe_path +'"/><polygon class="probe-empty" points= "'+ right_probe_path +'"/>'; 
 	}
 	else if(probe == 1){
 		return '<polygon class="probe-empty" points= "'+ left_probe_path +'"/><polygon class="probe-fill"  points= "'+ right_probe_path +'"/>';
 	}
+}
+
+function get_score_text(){
+	var score_text;
+	if(Resp == 'NoResp'){
+		score_text = "<p>X</p><br><p>- "+ -trial_score + "</p>";
+	}
+	else if(trial_score > 0 && block_cue[block_num] == 6){
+		score_text = "<p>- " + trial_score + "</p";
+	}
+	else if(trial_score > 0 && block_cue[block_num] == 3){
+		score_text = "<p>+ " + trial_score + "</p";
+	}
+	else if(trial_score < 0){
+		score_text = "<p>- " + -trial_score + "</p>"
+	}
+	else if(trial_score == 0 && rwrd == -1){
+		score_text = "<p>+ " + trial_score + "</p>"
+	}
+	else if(trial_score == 0 && rwrd == 1){
+		score_text = "<p>- " + trial_score + "</p>"
+	}
+	Resp = NaN, rwrd = NaN;
+	return score_text;
 }
 
 /******************************/
@@ -46,10 +68,7 @@ function getstim_probe(){
 var experiment_timeline = [];
 var bock_idx, trial_idx;
 var block_num=0, trial_num=0;
-const ResponseCode = {
-	no_change: 73, /* 73: i/I */
-	change: 77 /* 77: m/M*/
-};
+const no_change_key = 73, change_key = 77;
 
 window_h = window.screen.height;
 window_w = window.screen.width;
@@ -59,19 +78,18 @@ cx = window_w/2;
 cy = window_h/2;
 probe_height = (25*window_w)/1920;
 probe_width  = (10*window_h)/1080;
-var stim = generateGaborStimulus(block_num, trial_num, stim_size);
+right_probe_path = ''+(cx+2)+','+(cy+probe_width)+' '+ (cx+2+2*probe_height)+','+(cy)+' '+(cx+2)+','+(cy-probe_width)+'';
+left_probe_path = ''+(cx-2)+','+(cy+probe_width)+' '+ (cx-2-2*probe_height)+','+(cy)+' '+(cx-2)+','+(cy-probe_width)+'';
 
-/* Init experiment variables*/
-var session_data = {
-	total_scores: [],
-	all_responses: [],
-};
-var score = {
-	score.total: 0,
-	score.gi: 0,
-	score.li: 0,
-	score.net:0
-};
+var stim = generateGaborStimulus(block_num, trial_num, stim_size);
+var Resp, rwrd = NaN;
+var score_arr = [];
+var score = {total:0, gi:0, li:0, net:0};
+var trial_score = 0;
+var ResponseKey = new Array(numblocks);
+for(var i=0;i<numblocks;i++){
+	ResponseKey[i] = [];
+}
 
 
 /******************************/
@@ -205,10 +223,10 @@ var probe_and_response_phase = {
 			    '</svg>';
     },
     trial_duration: t_response,
-    choices: [ResponseCode.no_change, ResponseCode.change],
+    choices: [no_change_key, change_key],
     data : {test_part: 'Probe_and_response'},
     on_finish: function(data){
-    	AssessReward(data.key_press, ResponseCode);
+    	assessResponse(data.key_press);
     }
 };
 
@@ -229,7 +247,8 @@ var response_feedback_gap = {
 var feedback_phase = {
     type: 'html-keyboard-response',
     stimulus: function(){
-    	return	'<svg id="svg">' +
+    	return	get_score_text() +
+    			'<svg id="svg">' +
 			    '<circle class="reward-cue-left"  style="fill:'+rewardcolors[block_num][0]+';"/>'+
 			    '<circle class="reward-cue-right" style="fill:'+rewardcolors[block_num][1]+';"/>'+
 	            '</svg>';
