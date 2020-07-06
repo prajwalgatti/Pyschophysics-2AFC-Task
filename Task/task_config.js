@@ -154,11 +154,13 @@ function getTaskDesign(block){
 	*/
 	var skew1_idx, skew2_idx, norm_idx;
 	if(reward_cue[0]>0){
+		// left: Skewed & right: Balanced
 		temp_array = jsPsych.randomization.shuffle(left_probe);
 		skew1_idx  = temp_array.slice(0, left_probe.length/2).sort((a, b) => a - b);
 		skew2_idx  = temp_array.slice(left_probe.length/2, left_probe.length).sort((a, b) => a - b);
 		norm_idx   = right_probe.slice();
 	} else {
+		// left: Balanced & right: Skewed
 		temp_array = jsPsych.randomization.shuffle(right_probe);
 		skew1_idx  = temp_array.slice(0, right_probe.length/2).sort((a, b) => a - b);
 		skew2_idx  = temp_array.slice(right_probe.length/2, right_probe.length).sort((a, b) => a - b);
@@ -395,7 +397,7 @@ function getTaskDesign(block){
 		trialnum 			 = clone(trial_info_table.Trial_num);
 		probe_arr 			 = clone(trial_info_table.Probe);
 		reward_cue 			 = clone(trial_info_table.Reward_L);
-		RewardSkew_Cue  	 = clone(trial_info_table.RewardSkew_Cue);
+		reward_skew_cue  	 = clone(trial_info_table.RewardSkew_Cue);
 		delta_ 				 = [clone(trial_info_table.Change_Angle_L), clone(trial_info_table.Change_Angle_R)];
 		change 				 = clone(trial_info_table.Motif);
 		change_ 			 = [clone(trial_info_table.Change_L), clone(trial_info_table.Change_R)];
