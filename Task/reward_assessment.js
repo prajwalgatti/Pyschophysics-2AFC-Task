@@ -9,23 +9,41 @@ function rewardAllocation(block_num, trial_num){
 		rwrd = -1*block_info[block_num][0].Reward_L[trial_num]/Math.abs(block_info[block_num][0].Reward_L[trial_num]);
 	}
 
-	/* Assign contingency type */
-	if(rwrd==1 && block_info[block_num][0].RewardSkew_Cue[trial_num]==0){
-		cont = nrGain;
-		console.log(JSON.parse(JSON.stringify('nrGain')));
+	// /* Assign contingency type */
+	// if(rwrd==1 && block_info[block_num][0].RewardSkew_Cue[trial_num]==0){
+	// 	cont = nrGain;
+	// 	//console.log(JSON.parse(JSON.stringify('nrGain')));
+	// }
+	// else if(rwrd==1 && block_info[block_num][0].RewardSkew_Cue[trial_num]!=0){
+	// 	cont = eval('skGain'+block_info[block_num][0].RewardSkew_Cue[trial_num]);
+	// 	//console.log(JSON.parse(JSON.stringify('skGain' + block_info[block_num][0].RewardSkew_Cue[trial_num])));
+	// }
+	// else if(rwrd==-1 && block_info[block_num][0].RewardSkew_Cue[trial_num]==0){
+	// 	cont = nrLoss;
+	// 	//console.log(JSON.parse(JSON.stringify('nrLoss')));
+	// }
+	// else if(rwrd==-1 && block_info[block_num][0].RewardSkew_Cue[trial_num]!=0){
+	// 	cont = eval('skLoss'+block_info[block_num][0].RewardSkew_Cue[trial_num]);
+	// 	//console.log(JSON.parse(JSON.stringify('skLoss' + block_info[block_num][0].RewardSkew_Cue[trial_num])));
+	// }
+
+	if(block_cue[block_num] == 3){
+		cont = (block_info[block_num][0].RewardSkew_Cue[trial_num] == 0) ? nrGain : eval('skGain'+block_info[block_num][0].RewardSkew_Cue[trial_num]);
 	}
-	else if(rwrd==1 && block_info[block_num][0].RewardSkew_Cue[trial_num]!=0){
-		cont = eval('skGain'+block_info[block_num][0].RewardSkew_Cue[trial_num]);
-		console.log(JSON.parse(JSON.stringify('skGain' + block_info[block_num][0].RewardSkew_Cue[trial_num])));
+	else if(block_cue[block_num] == 6){
+		cont = (block_info[block_num][0].RewardSkew_Cue[trial_num] == 0) ? nrLoss : eval('skLoss'+block_info[block_num][0].RewardSkew_Cue[trial_num]);
 	}
-	else if(rwrd==-1 && block_info[block_num][0].RewardSkew_Cue[trial_num]==0){
-		cont = nrLoss;
-		console.log(JSON.parse(JSON.stringify('nrLoss')));
+
+	if(block_cue[block_num] == 3){
+		(block_info[block_num][0].RewardSkew_Cue[trial_num] == 0) ? console.log(JSON.parse(JSON.stringify('nrGain')))
+		 : console.log(JSON.parse(JSON.stringify('skGain' + block_info[block_num][0].RewardSkew_Cue[trial_num])));
 	}
-	else if(rwrd==-1 && block_info[block_num][0].RewardSkew_Cue[trial_num]!=0){
-		cont = eval('skLoss'+block_info[block_num][0].RewardSkew_Cue[trial_num]);
-		console.log(JSON.parse(JSON.stringify('skLoss' + block_info[block_num][0].RewardSkew_Cue[trial_num])));
+	else if(block_cue[block_num] == 6){
+		(block_info[block_num][0].RewardSkew_Cue[trial_num] == 0) ?  console.log(JSON.parse(JSON.stringify('nrLoss')))
+		 : console.log(JSON.parse(JSON.stringify('skLoss' + block_info[block_num][0].RewardSkew_Cue[trial_num])));
 	}
+
+
 	return [rwrd, cont];
 }
 
@@ -94,7 +112,7 @@ function assessResponse(keypress, ResponseCode, block_num, trial_num, score){
 			respcounter = [[0,0],[0,1]];
 			score.trial = cont.cr;
 			score.total = score.total + cont.cr;
-			if(rwrd==1){
+			if(rwrd  == 1){
 				score.gi = score.gi + cont.cr;
 				score.gf = score.gf - cont.miss;
 			}
@@ -108,7 +126,7 @@ function assessResponse(keypress, ResponseCode, block_num, trial_num, score){
 			respcounter = [[0,1],[0,0]];
 			score.trial = cont.miss;
 			score.total = score.total + cont.miss;
-			if(rwrd==1){
+			if(rwrd == 1){
 				score.gi = score.gi + cont.miss;
 				score.gf = score.gf - cont.cr;
 			}
@@ -122,7 +140,7 @@ function assessResponse(keypress, ResponseCode, block_num, trial_num, score){
 			respcounter = [[0,0],[1,0]];
 			score.trial = cont.fa;
 			score.total = score.total + cont.fa;
-			if(rwrd==1){
+			if(rwrd == 1){
 				score.gi = score.gi + cont.fa;
 				score.gf = score.gf - cont.hit;
 			}
@@ -136,7 +154,7 @@ function assessResponse(keypress, ResponseCode, block_num, trial_num, score){
 			respcounter = 0;
 			score.trial = cont.noresp;
 			score.total = score.total + cont.noresp;
-			if(rwrd==1){
+			if(rwrd == 1){
 				score.gi = score.gi + cont.noresp;
 				score.gf = score.gf - cont.hit;
 			}
