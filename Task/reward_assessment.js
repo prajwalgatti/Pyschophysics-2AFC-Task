@@ -12,15 +12,19 @@ function rewardAllocation(block_num, trial_num){
 	/* Assign contingency type */
 	if(rwrd==1 && block_info[block_num][0].RewardSkew_Cue[trial_num]==0){
 		cont = nrGain;
+		console.log(JSON.parse(JSON.stringify('nrGain')));
 	}
 	else if(rwrd==1 && block_info[block_num][0].RewardSkew_Cue[trial_num]!=0){
 		cont = eval('skGain'+block_info[block_num][0].RewardSkew_Cue[trial_num]);
+		console.log(JSON.parse(JSON.stringify('skGain' + block_info[block_num][0].RewardSkew_Cue[trial_num])));
 	}
 	else if(rwrd==-1 && block_info[block_num][0].RewardSkew_Cue[trial_num]==0){
 		cont = nrLoss;
+		console.log(JSON.parse(JSON.stringify('nrLoss')));
 	}
 	else if(rwrd==-1 && block_info[block_num][0].RewardSkew_Cue[trial_num]!=0){
 		cont = eval('skLoss'+block_info[block_num][0].RewardSkew_Cue[trial_num]);
+		console.log(JSON.parse(JSON.stringify('skLoss' + block_info[block_num][0].RewardSkew_Cue[trial_num])));
 	}
 	return [rwrd, cont];
 }
@@ -160,9 +164,12 @@ function assessResponse(keypress, ResponseCode, block_num, trial_num, score){
 	}
 
 	/* Debug Code */
+	console.log("Probe:" + JSON.parse(JSON.stringify(block_info[block_num][0].Probe[trial_num])));
+	console.log("RewardL:" + JSON.parse(JSON.stringify(block_info[block_num][0].Reward_L[trial_num])));
 	console.log(JSON.parse(JSON.stringify(Response)));
 	console.log(JSON.parse(JSON.stringify(Resp)));
 	console.log(JSON.parse(JSON.stringify(rwrd)));
+
 
 
 
