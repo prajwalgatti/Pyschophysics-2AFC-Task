@@ -76,7 +76,6 @@ var score = {
 };
 var feedback_text, Resp;
 
-
 /******************************/
 /* Experiment Phases/Nodes */
 /******************************/
@@ -110,9 +109,9 @@ var inter_block_break = {
 	stimulus: 'Next block starts soon.',
 	trial_duration: t_interblockbreak,
 	choices: jsPsych.NO_KEYS,
-	on_finish: function(score){
+	on_finish: function(){
 		score_arr.push(score);
-		var score = {trial: 0, total: 0, gi: 0, li: 0, gf: 0,
+		score = {trial: 0, total: 0, gi: 0, li: 0, gf: 0,
 			la: 0, net: 0, netgi: 0, netla: 0};
 	}
 };

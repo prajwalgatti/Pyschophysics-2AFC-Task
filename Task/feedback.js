@@ -53,20 +53,24 @@ function drawPieFeedback(scores, block_num, trial_num){
 	return;
 }
 
-function drawCumulativePieFeedback(scores, trial_num){
-	if(trial_num != numtrials-1){
-		return;
-	}
-	new_angle = deg_per_score * Math.abs(scores.net);
-	drawPieChart(new_angle, new_angle, false);
-	return;
-}
+// function drawCumulativePieFeedback(scores, trial_num){
+// 	var max_score_in_block = 
+// 	if(trial_num != numtrials-1){
+// 		return;
+// 	}
+// 	new_angle = deg_per_score * Math.abs(scores.total);
+// 	drawPieChart(new_angle, new_angle, false);
+// 	return;
+// }
 
 function getAudioFeedback(Resp){
 	if(Resp == 'Hit'|| Resp == 'CR'){
 		return audio_files[0];
 	}
-	else if(Resp == 'Miss' || Resp == 'FA' || Resp == 'NoResp'){
+	else if(Resp == 'Miss' || Resp == 'FA'){
 		return audio_files[1];
+	}
+	else if(Resp == 'NoResp'){
+		return audio_files[2];
 	}
 }

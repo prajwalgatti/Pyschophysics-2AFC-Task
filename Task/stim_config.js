@@ -81,4 +81,4 @@ const t_interblockbreak = 10000;
 /***********************************/
 /* Feedback  */
 /***********************************/
-const audio_files = ['audio_files/correct.wav', 'audio_files/incorrect.wav'];
+const audio_files = ['audio_files/correct.wav', 'audio_files/incorrect.wav', 'audio_files/noresp.wav'];
