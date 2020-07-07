@@ -58,11 +58,11 @@ var stim_radius = stim_size/2;
 cx = window_w/2;
 cy = window_h/2;
 probe_height = (25*window_w)/1920;
-probe_width  = (10*window_h)/1080;
+probe_width  = (20*window_h)/1080;
 var stim = generateGaborStimulus(block_num, trial_num, stim_size);
 
 /* Init experiment variables*/
-var score_arr = []
+var score_arr = [];
 var score = {
 	trial: 0,
 	total: 0,
@@ -74,7 +74,7 @@ var score = {
 	netgi: 0,
 	netla: 0
 };
-var feedback_text;
+var feedback_text, Resp;
 
 
 /******************************/
@@ -88,7 +88,8 @@ var fullscr = {
 
 var welcome = {
     type: 'html-keyboard-response',
-    stimulus: 'Welcome to the experiment. Press any key to begin.'
+    stimulus: 'Welcome to the experiment. Press any key to begin.',
+    on_start: function() {$('body').css('cursor', 'none');}
 };
 
 var begin_block = {
@@ -109,7 +110,7 @@ var inter_block_break = {
 	stimulus: 'Next block starts soon.',
 	trial_duration: t_interblockbreak,
 	choices: jsPsych.NO_KEYS,
-	on_finish: function(){
+	on_finish: function(score){
 		score_arr.push(score);
 		var score = {trial: 0, total: 0, gi: 0, li: 0, gf: 0,
 			la: 0, net: 0, netgi: 0, netla: 0};
@@ -212,7 +213,7 @@ var probe_and_response_phase = {
     choices: [ResponseCode.no_change_key, ResponseCode.change_key],
     data : {test_part: 'Probe_and_response'},
     on_finish: function(data){
-    	[score, feedback_text] = assessResponse(data.key_press, ResponseCode, block_num, trial_num, score);
+    	[score, feedback_text, Resp] = assessResponse(data.key_press, ResponseCode, block_num, trial_num, score);
     }
 };
 
@@ -220,6 +221,7 @@ var response_feedback_gap = {
 	type: 'html-keyboard-response',
 	stimulus: function(){
     	return	'<svg>' +
+    			'<circle class="fixation-point"/>' + 
 			    '<circle class="reward-cue-left"  style="fill:'+rewardcolors[block_num][0]+';"/>'+
 			    '<circle class="reward-cue-right" style="fill:'+rewardcolors[block_num][1]+';"/>'+
 			    '</svg>';
@@ -231,28 +233,47 @@ var response_feedback_gap = {
 }
 
 var feedback_phase = {
-    type: 'html-keyboard-response',
-    stimulus: function(){
-    	return	feedback_text +
-    			'<svg id="svg">' +
-			    '<circle class="reward-cue-left"  style="fill:'+rewardcolors[block_num][0]+';"/>'+
-			    '<circle class="reward-cue-right" style="fill:'+rewardcolors[block_num][1]+';"/>'+
-	            '</svg>';
-    },
-    trial_duration: t_feedback,
-    choices: jsPsych.NO_KEYS,
-    data : {test_part: 'feedback'},
-    on_finish: function(){
-    	console.log(`block: ${block_num}...trial: ${trial_num}`);
+	type: 'audio-keyboard-response',
+	stimulus: function(){
+		return getAudioFeedback(Resp);
+	},
+	trial_duration: t_feedback,
+	prompt: function(){
+		return '<svg>'+
+		    '<svg id="feedback-pie-chart" x="42.1875%" y="42.1875%" width="15.745%" height="15.745%" viewBox="-1 -1 2 2"></svg>' + 
+		    '<circle class="reward-cue-left"  style="fill:'+rewardcolors[block_num][0]+';"/>'+
+			'<circle class="reward-cue-right" style="fill:'+rewardcolors[block_num][1]+';"/>'+
+		    '</svg>'+
+		    '<p style="position:relative;z-index:1;">'+feedback_text+'</p>';
+	},
+	choices: jsPsych.NO_KEYS,
+	on_load: function(){
+		drawPieFeedback(score, block_num, trial_num);
+	},
+	on_finish: function(){
+    	console.log(`block: ${block_num}...trial: ${trial_num}`); /* Debug code (Remove later) */
     	if(trial_num == numtrials-1){
     		block_num = block_num + 1; 
     		trial_num = 0;
     	} else {
     		trial_num++;
     	}
-
     }
 };
+
+/*
+var cumulative_feedback = {
+	type: 'html-keyboard-response',
+	stimulus: function(){
+
+	},
+	trial_duration: ,
+	choices: jsPsych.NO_KEYS,
+	on_load: function(){
+		drawCumulativePieFeedback();
+	}
+}; 
+*/
 
 /************************************/
 /* Generate experiment timeline */
@@ -277,5 +298,6 @@ for(block_idx=0; block_idx<numblocks; block_idx++){
 			experiment_timeline.push(mid_block_break);
 		}
 	}
+	// experiment_timeline.push(cumulative_feedback);
 	experiment_timeline.push(inter_block_break);
 }

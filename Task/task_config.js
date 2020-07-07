@@ -85,8 +85,8 @@ const nrGain  = {hit: r, 		miss: 0, 		fa: 0, 		  cr: r, 	   noresp: -2*r};
 const nrLoss  = {hit: 0, 		miss: -r, 		fa: -r, 	  cr: 0, 	   noresp: -2*r};
 const skGain1 = {hit: 2*r*2/3, 	miss: 0, 		fa: 0, 		  cr: 2*r/3,   noresp: -2*r};
 const skGain2 = {hit: 2*r/3, 	miss: 0,		fa: 0, 		  cr: 2*r*2/3, noresp: -2*r};
-const skLoss1 = {hit: 0, 		miss: -2*r/3,	fa: -2*r*2/3, cr: 0, 	   noresp: -2*2*r};
-const skLoss2 = {hit: 0, 		miss: -2*r*2/3,	fa: -2*r/3,	  cr: 0, 	   noresp: -r};
+const skLoss1 = {hit: 0, 		miss: -2*r/3,	fa: -2*r*2/3, cr: 0, 	   noresp: -2*r};
+const skLoss2 = {hit: 0, 		miss: -2*r*2/3,	fa: -2*r/3,	  cr: 0, 	   noresp: -2*r};
 
 var Contable_nrGain  = new Array(numblocks);
 var Contable_nrLoss  = new Array(numblocks);
@@ -104,7 +104,7 @@ for(i=0; i<numblocks; i++){
 }
 
 const base_score = (numtrials*0.25)*nrGain.hit*2;
-const max_score  = base_score;
+const max_score  = 2*base_score;
 
 /* Get Reward Cue colors for each block */
 function getRewardCueColor(){
