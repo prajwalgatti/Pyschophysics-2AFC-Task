@@ -32,6 +32,7 @@
             show_preload_progress_bar: false,
             use_webaudio: false,
             on_finish: function() {
+                $('body').css('cursor', 'default');
                 jsPsych.data.displayData();
             }
         });

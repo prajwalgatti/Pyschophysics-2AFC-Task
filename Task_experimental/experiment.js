@@ -51,7 +51,8 @@ var fullscr = {
 
 var welcome = {
     type: 'html-keyboard-response',
-    stimulus: 'Welcome to the experiment. Press any key to begin.'
+    stimulus: 'Welcome to the experiment. Press any key to begin.',
+    on_start: function(){$('body').css('cursor', 'none');}
 };
 
 function drawPieChart(){
