@@ -5,7 +5,6 @@ function drawPieChart(old_angle, new_angle, animate_flag = true){
     function getPath(angle, pie){
         var x, y, angle_in_rads;
         if(angle>180){
-            // console.log('Warning! Pie chart feedback angle greater than 180 deg.');
             angle = 180;
         }
         else if(angle<0){
@@ -48,6 +47,8 @@ function drawPieFeedback(scores, block_num, trial_num){
 	new_angle = old_angle + deg_per_score * Math.abs(scores.trial);		
 	}
 	drawPieChart(old_angle, new_angle, true);
+	if(new_angle < 0){ new_angle = 0;}
+	if(new_angle > 180){ new_angle = 180;}
 	old_angle = new_angle;
 	return;
 }

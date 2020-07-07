@@ -10,22 +10,33 @@ function rewardAllocation(block_num, trial_num){
 	}
 
 	if(block_cue[block_num] == 3){
-		cont = (block_info[block_num][0].RewardSkew_Cue[trial_num] == 0) ? nrGain : eval('skGain'+block_info[block_num][0].RewardSkew_Cue[trial_num]);
+		if(block_info[block_num][0].RewardSkew_Cue[trial_num] == 0){
+			cont = nrGain;
+			console.log(JSON.parse(JSON.stringify('nrGain')));
+		}
+		else if(block_info[block_num][0].RewardSkew_Cue[trial_num] = 1){
+			cont = skGain1;
+			console.log(JSON.parse(JSON.stringify('skGain1')));
+		}
+		else if(block_info[block_num][0].RewardSkew_Cue[trial_num] = 2){
+			cont = skGain2;
+			console.log(JSON.parse(JSON.stringify('skGain2')));
+		}		
 	}
 	else if(block_cue[block_num] == 6){
-		cont = (block_info[block_num][0].RewardSkew_Cue[trial_num] == 0) ? nrLoss : eval('skLoss'+block_info[block_num][0].RewardSkew_Cue[trial_num]);
+		if(block_info[block_num][0].RewardSkew_Cue[trial_num] == 0){
+			cont = nrLoss;
+			console.log(JSON.parse(JSON.stringify('nrLoss')));
+		}
+		else if(block_info[block_num][0].RewardSkew_Cue[trial_num] == 1){
+			cont = skLoss1;
+			console.log(JSON.parse(JSON.stringify('skLoss1')));	
+		}
+		else if(block_info[block_num][0].RewardSkew_Cue[trial_num] == 2){
+			cont = skLoss2;
+			console.log(JSON.parse(JSON.stringify('skLoss2')));
+		}
 	}
-
-	/* Debug code (remove later) */
-	if(block_cue[block_num] == 3){
-		(block_info[block_num][0].RewardSkew_Cue[trial_num] == 0) ? console.log(JSON.parse(JSON.stringify('nrGain')))
-		 : console.log(JSON.parse(JSON.stringify('skGain' + block_info[block_num][0].RewardSkew_Cue[trial_num])));
-	}
-	else if(block_cue[block_num] == 6){
-		(block_info[block_num][0].RewardSkew_Cue[trial_num] == 0) ?  console.log(JSON.parse(JSON.stringify('nrLoss')))
-		 : console.log(JSON.parse(JSON.stringify('skLoss' + block_info[block_num][0].RewardSkew_Cue[trial_num])));
-	}
-
 
 	return [rwrd, cont];
 }
@@ -163,13 +174,5 @@ function assessResponse(keypress, ResponseCode, block_num, trial_num, score){
 	else if(score.trial == 0){
 		feedback_text = '' + (score.trial);
 	}
-
-	/* Debug code (remove later) */
-	console.log("Probe:" + JSON.parse(JSON.stringify(block_info[block_num][0].Probe[trial_num])));
-	console.log("RewardL:" + JSON.parse(JSON.stringify(block_info[block_num][0].Reward_L[trial_num])));
-	console.log(JSON.parse(JSON.stringify(Response)));
-	console.log(JSON.parse(JSON.stringify(Resp)));
-	console.log("fb:" + JSON.parse(JSON.stringify(feedback_text)));
-
 	return [score, feedback_text, Resp];
 }
