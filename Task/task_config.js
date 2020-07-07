@@ -104,7 +104,7 @@ for(i=0; i<numblocks; i++){
 }
 
 const base_score = (numtrials*0.25)*nrGain.hit*2;
-const max_score  = base_score;
+const max_score  = 2*base_score;
 
 /* Get Reward Cue colors for each block */
 function getRewardCueColor(){

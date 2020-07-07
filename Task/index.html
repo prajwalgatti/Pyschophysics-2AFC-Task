@@ -11,6 +11,7 @@
     <script src="js/jspsych/jspsych.js"></script>
     <script src="js/jspsych/plugins/jspsych-html-keyboard-response.js"></script>
     <script src="js/jspsych/plugins/jspsych-fullscreen.js"></script>
+    <script src="js/jsPsych/plugins/jspsych-audio-keyboard-response.js"></script>
     <!-- <script src="js/jspsych/plugins/jspsych-call-function.js"></script> -->
     <script src="js/jspsych/custom-call-function.js"></script>
     <script src="js/gaborgen/numeric.min.js"></script>
@@ -18,9 +19,10 @@
     <script src="js/gaborgen/jquery-ui.min.js"></script>
     <script src="js/gaborgen/gab.js"></script>
     <!-- Experiment scripts -->
-    <script src="reward_assessment.js"></script>
     <script src="stim_config.js"></script>
     <script src="task_config.js"></script>
+    <script src="reward_assessment.js"></script>
+    <script src="feedback.js"></script>
     <script src="experiment_final.js"></script>
 </head>
 <body></body>
@@ -28,7 +30,7 @@
         jsPsych.init({
             timeline: experiment_timeline,
             preload_audio: audio_files,
-            user_webaudio: false,
+            use_webaudio: false,
             on_finish: function() {
                 jsPsych.data.displayData();
             }

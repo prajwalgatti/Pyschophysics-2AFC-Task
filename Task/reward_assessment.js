@@ -152,16 +152,16 @@ function assessResponse(keypress, ResponseCode, block_num, trial_num, score){
 	score.netla = score.la + score.gf;
 
 	if(Resp == 'NoResp'){
-		feedback_text = '<p>-' + (-score.trial) + '<br>X</p>';
+		feedback_text = '-' + (-score.trial) + '<br>X';
 	}
 	else if(score.trial > 0){
-		feedback_text = '<p>+' + (score.trial) + '</p>'; 
+		feedback_text = '+' + (score.trial) ; 
 	}
 	else if(score.trial < 0){
-		feedback_text = '<p>-' + (-score.trial) + '</p>';
+		feedback_text = '-' + (-score.trial);
 	}
 	else if(score.trial == 0){
-		feedback_text = '<p>' + (score.trial) + '</p>';
+		feedback_text = '' + (score.trial);
 	}
 
 	/* Debug code (remove later) */
@@ -169,7 +169,7 @@ function assessResponse(keypress, ResponseCode, block_num, trial_num, score){
 	console.log("RewardL:" + JSON.parse(JSON.stringify(block_info[block_num][0].Reward_L[trial_num])));
 	console.log(JSON.parse(JSON.stringify(Response)));
 	console.log(JSON.parse(JSON.stringify(Resp)));
-	console.log(JSON.parse(JSON.stringify(rwrd)));
+	console.log("fb:" + JSON.parse(JSON.stringify(feedback_text)));
 
-	return [score, feedback_text];
+	return [score, feedback_text, Resp];
 }
