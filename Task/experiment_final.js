@@ -273,7 +273,7 @@ var cumulative_feedback = {
 		    '<circle class="reward-cue-left"  style="fill:'+rewardcolors[block_num][0]+';"/>'+
 			'<circle class="reward-cue-right" style="fill:'+rewardcolors[block_num][1]+';"/>'+
 		    '</svg>'+
-		    '<p style="position:relative;z-index:1;">'+score.total+'</p>';
+		    '<p style="position:relative;z-index:1;">'+get_cumulative_feedback_text(score.total)+'</p>';
 	},
 	trial_duration: t_cumulative_fb,
 	choices: jsPsych.NO_KEYS,

@@ -163,16 +163,28 @@ function assessResponse(keypress, ResponseCode, block_num, trial_num, score){
 	score.netla = score.la + score.gf;
 
 	if(Resp == 'NoResp'){
-		feedback_text = '-' + (-score.trial) + '<br>X';
+		feedback_text = '- INR ' + (-score.trial) + '<br>X';
 	}
 	else if(score.trial > 0){
-		feedback_text = '+' + (score.trial) ; 
+		feedback_text = '+ INR ' + (score.trial) ; 
 	}
 	else if(score.trial < 0){
-		feedback_text = '-' + (-score.trial);
+		feedback_text = '- INR ' + (-score.trial);
 	}
 	else if(score.trial == 0){
-		feedback_text = '' + (score.trial);
+		feedback_text = 'INR ' + (score.trial);
 	}
 	return [score, feedback_text, Resp];
+}
+
+function get_cumulative_feedback_text(score){
+	if(score > 0){
+		return '+ INR ' + score;
+	}
+	else if(score < 0){
+		return '- INR ' + (-score);
+	}
+	else if(score == 0){
+		return 'INR ' + score;
+	}
 }
