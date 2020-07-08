@@ -68,9 +68,13 @@ const t_response = 1500;
 const t_respfb_break_min = 500;
 const t_respfb_break_max = 1000;
 
-/* Duration of feedback text display */
+/* Duration of trial feedback text display */
 const t_feedback = 2000;
 const t_pie_animation = 1000;
+
+/* Duration of cumulative block feedback display*/
+const t_cumulative_fb = 3000;
+const t_post_cumulative_fb_gap = 1000;
 
 /* Inter-trial interval */
 const t_intertrialbreak = 2000;

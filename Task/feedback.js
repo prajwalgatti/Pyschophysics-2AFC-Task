@@ -29,11 +29,13 @@ function drawPieChart(old_angle, new_angle, animate_flag = true){
     sector.attr({
         fill:'#FFFFFF',
     });
-    Snap.animate(old_angle, new_angle, function(val){
-            sector.attr({
-                d: getPath(val, pie)
-            });
-    }, t_pie_animation);
+    if(animate_flag){
+        Snap.animate(old_angle, new_angle, function(val){
+                sector.attr({
+                    d: getPath(val, pie)
+                });
+        }, t_pie_animation);
+    }
 }
 
 function drawPieFeedback(scores, block_num, trial_num){
@@ -53,15 +55,10 @@ function drawPieFeedback(scores, block_num, trial_num){
 	return;
 }
 
-// function drawCumulativePieFeedback(scores, trial_num){
-// 	var max_score_in_block = 
-// 	if(trial_num != numtrials-1){
-// 		return;
-// 	}
-// 	new_angle = deg_per_score * Math.abs(scores.total);
-// 	drawPieChart(new_angle, new_angle, false);
-// 	return;
-// }
+function drawCumulativePieFeedback(trial_num){
+	drawPieChart(old_angle, old_angle, false);
+	return;
+}
 
 function getAudioFeedback(Resp){
 	if(Resp == 'Hit'|| Resp == 'CR'){

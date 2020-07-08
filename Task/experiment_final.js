@@ -5,6 +5,10 @@
 /******************************/
 
 function generateGaborStimulus(block_num, trial_num, size) {
+	if(block_num > numblocks || trial_num > numtrials){
+		console.log("Error: block_num or trial_num exceeds set limit");
+		return undefined;
+	}
 	var contrast = 100.0;
 	var spatial_freq = 50.0;
 	var initial_angles = [block_info[block_num][1].Alpha_L[trial_num],
@@ -229,7 +233,7 @@ var response_feedback_gap = {
 	trial_duration: function(){
 		return block_info[block_num][0].TimeRespFB_Break[trial_num];
 	}
-}
+};
 
 var feedback_phase = {
 	type: 'audio-keyboard-response',
@@ -260,19 +264,25 @@ var feedback_phase = {
     }
 };
 
-/*
 var cumulative_feedback = {
 	type: 'html-keyboard-response',
 	stimulus: function(){
-
+		return '<p class="score-text" style="transform:translateY(29.255%);">Total Score</p>' +
+			'<svg>'+
+		    '<svg id="feedback-pie-chart" x="42.1875%" y="42.1875%" width="15.745%" height="15.745%" viewBox="-1 -1 2 2"></svg>' + 
+		    '<circle class="reward-cue-left"  style="fill:'+rewardcolors[block_num][0]+';"/>'+
+			'<circle class="reward-cue-right" style="fill:'+rewardcolors[block_num][1]+';"/>'+
+		    '</svg>'+
+		    '<p style="position:relative;z-index:1;">'+score.total+'</p>';
 	},
-	trial_duration: ,
+	trial_duration: t_cumulative_fb,
 	choices: jsPsych.NO_KEYS,
 	on_load: function(){
-		drawCumulativePieFeedback();
-	}
+		drawCumulativePieFeedback(trial_num);
+	},
+	post_trial_gap: t_post_cumulative_fb_gap
 }; 
-*/
+
 
 /************************************/
 /* Generate experiment timeline */
@@ -297,6 +307,6 @@ for(block_idx=0; block_idx<numblocks; block_idx++){
 			experiment_timeline.push(mid_block_break);
 		}
 	}
-	// experiment_timeline.push(cumulative_feedback);
+	experiment_timeline.push(cumulative_feedback);
 	experiment_timeline.push(inter_block_break);
 }
