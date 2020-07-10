@@ -30,7 +30,7 @@ function drawStimuli(stim, gabor_posn_left, gabor_posn_right){
 	context.drawImage(stim[1], x=gabor_posn_right[0], y=gabor_posn_right[1]);
 };
 
-function drawStimuliChange(stim, gabor_posn_L, gabor_posn_right){
+function drawStimuliChange(stim, gabor_posn_left, gabor_posn_right){
 	var canvas, context;
 	canvas = document.getElementById('stimChangeCanvas');
 	context = canvas.getContext('2d');

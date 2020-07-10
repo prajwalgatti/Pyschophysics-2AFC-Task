@@ -12,7 +12,7 @@ function get_stim(size) {
     var init_angles = [0,100];//[rand(15,85), rand(15,85)];
     var changed_angles = [init_angles[0]+25, init_angles[1]+25]
     var motif = jsPsych.randomization.sampleWithoutReplacement([[0,0], [0,1], [1,0], [1,1]],1)[0];
-    imgStrings = [gaborgen(init_angles[0], spatial_freq, contrast, size), gaborgen(init_angles[1], spatial_freq, contrast, size), gaborgen(changed_angles[0], spatial_freq, contrast, size), gaborgen(changed_angles[1], spatial_freq, contrast, size), motif];
+    var imgStrings = [gaborgen(init_angles[0], spatial_freq, contrast, size), gaborgen(init_angles[1], spatial_freq, contrast, size), gaborgen(changed_angles[0], spatial_freq, contrast, size), gaborgen(changed_angles[1], spatial_freq, contrast, size), motif];
     if (motif[0] == 0){
         imgStrings[2] = imgStrings[0];
     }
@@ -134,7 +134,11 @@ var stimulus_and_cue_phase = {
     '<image class="left-stim" href="'+ stim[0] + '" style="transform:translate('+ (-stim_radius) +'px,'+ (-stim_radius) +'px)"/>' +
     '<image class="right-stim" href="'+ stim[1] + '" style="transform:translate('+ (-stim_radius) +'px,'+ (-stim_radius) +'px)"/>' +
     '</svg>',
+<<<<<<< Updated upstream
     trial_duration: 200,
+=======
+    trial_duration: 300,
+>>>>>>> Stashed changes
     choices: jsPsych.NO_KEYS,
     data : {test_part: 'stimulus_and_cue'},
     on_finish: function(data){
@@ -226,7 +230,7 @@ var new_feedback_phase = {
     stimulus: function(){
         return audio_files[0];
     },
-    trial_duration: 10000,
+    trial_duration: 2000,
     prompt: '<svg xmlns="http://www.w3.org/2000/svg">'+
     '<svg id="feedback-pie-chart" x="40%" y="40%" width="20%" height="20%" viewBox="-1 -1 2 2"></svg>' + 
     '<circle class="reward-cue-left"/>'+
