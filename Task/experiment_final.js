@@ -10,7 +10,7 @@ function generateGaborStimulus(block_num, trial_num, size) {
 		return undefined;
 	}
 	var contrast = 100.0;
-	var spatial_freq = 50.0;
+	var spatial_freq = 25.0;
 	var initial_angles = [block_info[block_num][1].Alpha_L[trial_num],
 						  block_info[block_num][1].Alpha_R[trial_num]];
 	var change_angles = [block_info[block_num][1].Delta_L[trial_num],
@@ -22,14 +22,23 @@ function generateGaborStimulus(block_num, trial_num, size) {
 	return stim_arr;
 }
 
-function getstim_change_phase(stim, stim_radius){
-	var left_stim, right_stim;
-	left_stim = (stim[2]==0)?  '<image class="left-stim"  href="'+ stim[0] + '" style="transform:translate('+ (-stim_radius) +'px,'+ (-stim_radius) +'px)"/>' 
-							:  '<image class="left-stim"  href="'+ stim[2] + '" style="transform:translate('+ (-stim_radius) +'px,'+ (-stim_radius) +'px)"/>';
-	right_stim = (stim[3]==0)? '<image class="right-stim" href="'+ stim[1] + '" style="transform:translate('+ (-stim_radius) +'px,'+ (-stim_radius) +'px)"/>' 
-							:  '<image class="right-stim" href="'+ stim[3] + '" style="transform:translate('+ (-stim_radius) +'px,'+ (-stim_radius) +'px)"/>';
-	return left_stim + right_stim;
-}
+function drawStimuli(stim, gabor_posn_left, gabor_posn_right){
+	var canvas, context;
+	canvas = document.getElementById('stimulusCanvas');
+	context = canvas.getContext('2d');
+	context.drawImage(stim[0], x=gabor_posn_left[0], y=gabor_posn_left[1]);
+	context.drawImage(stim[1], x=gabor_posn_right[0], y=gabor_posn_right[1]);
+};
+
+function drawStimuliChange(stim, gabor_posn_L, gabor_posn_right){
+	var canvas, context;
+	canvas = document.getElementById('stimChangeCanvas');
+	context = canvas.getContext('2d');
+	(stim[2] != 0) ? context.drawImage(stim[2], x=gabor_posn_left[0], y=gabor_posn_left[1]) :
+		context.drawImage(stim[0], x=gabor_posn_left[0], y=gabor_posn_left[1]);
+	(stim[3] != 0) ? context.drawImage(stim[3], x=gabor_posn_right[0], y=gabor_posn_right[1]) :
+		context.drawImage(stim[1], x=gabor_posn_right[0], y=gabor_posn_right[1]);
+};
 
 function getstim_probe(){
 	var probe = block_info[block_num][0].Probe[trial_num];
@@ -41,7 +50,7 @@ function getstim_probe(){
 	else if(probe == 1){
 		return '<polygon class="probe-empty" points= "'+ left_probe_path +'"/><polygon class="probe-fill"  points= "'+ right_probe_path +'"/>';
 	}
-}
+};
 
 /******************************/
 /* Variables */
@@ -55,14 +64,17 @@ const ResponseCode = {
 	change_key: 77 /* 77: m/M*/
 };
 
-window_h = window.screen.height;
-window_w = window.screen.width;
+var window_h = window.screen.height;
+var window_w = window.screen.width;
 var stim_size = (500*window_w)/1920;
 var stim_radius = stim_size/2;
-cx = window_w/2;
-cy = window_h/2;
-probe_height = (25*window_w)/1920;
-probe_width  = (20*window_h)/1080;
+var cx = window_w/2;
+var cy = window_h/2;
+var probe_height = (25*window_w)/1920;
+var probe_width  = (20*window_h)/1080;
+var gabor_posn_left = [window_w/2-window_w*350/1920-stim_radius, window_h/2-stim_radius];
+var gabor_posn_right = [window_w/2+window_w*350/1920-stim_radius, window_h/2-stim_radius];
+//generate first trial's stimuli
 var stim = generateGaborStimulus(block_num, trial_num, stim_size);
 
 /* Init experiment variables*/
@@ -92,6 +104,7 @@ var fullscr = {
 var welcome = {
     type: 'html-keyboard-response',
     stimulus: 'Welcome to the experiment. Press any key to begin.',
+    data: {test_part: 'Welcome'},
     on_start: function() {$('body').css('cursor', 'none');}
 };
 
@@ -99,13 +112,15 @@ var begin_block = {
 	type: 'html-keyboard-response',
 	stimulus: 'Press any key to begin block.',
 	trial_duration: wait_forblock,
-	post_trial_gap: t_startblockin
+	post_trial_gap: t_startblockin,
+    data: {test_part: 'Begin_block'}
 };
 
 var mid_block_break = {
 	type: 'html-keyboard-response',
 	stimulus: 'BREAK. Maintain position. Press any key to skip.',
 	trial_duration: t_resumeblockin,
+    data: {test_part: 'Mid_block_break'}
 };
 
 var inter_block_break = {
@@ -113,6 +128,7 @@ var inter_block_break = {
 	stimulus: 'Next block starts soon.',
 	trial_duration: t_interblockbreak,
 	choices: jsPsych.NO_KEYS,
+    data: {test_part: 'Inter_block_break'},
 	on_finish: function(){
 		score_arr.push(score);
 		score = {trial: 0, total: 0, gi: 0, li: 0, gf: 0,
@@ -129,6 +145,7 @@ var inter_trial_break = {
     			'</svg>';
     		},
     async: true,
+    data: {test_part: 'Inter_trial_break'},
     func: function(done){
         setTimeout(done, t_intertrialbreak);
 		stim.length = 0;
@@ -152,12 +169,11 @@ var fixation_phase = {
 var stimulus_and_cue_phase = {
     type: 'html-keyboard-response',
     stimulus: function(){
-    	return	'<svg>' +
+    	return	'<canvas id="stimulusCanvas" width="'+ window_w +'" height="'+ window_h +'"></canvas>' +
+    			'<svg>' +
     			'<circle class="fixation-point"/>' + 
 			    '<circle class="reward-cue-left"  style="fill:'+rewardcolors[block_num][0]+';"/>'+
 			    '<circle class="reward-cue-right" style="fill:'+rewardcolors[block_num][1]+';"/>'+
-    			'<image class="left-stim" href="' + stim[0] + '" style="transform:translate('+ (-stim_radius) +'px,'+ (-stim_radius) +'px)"/>' +
-    			'<image class="right-stim" href="'+ stim[1] + '" style="transform:translate('+ (-stim_radius) +'px,'+ (-stim_radius) +'px)"/>' +
     			'</svg>';
     },
     trial_duration: function(){
@@ -165,6 +181,9 @@ var stimulus_and_cue_phase = {
     },
     choices: jsPsych.NO_KEYS,
     data : {test_part: 'stimulus_and_cue'},
+    on_load: function(){
+    	drawStimuli(stim, gabor_posn_left, gabor_posn_right);
+    },
     on_finish: function(data){
     	data.stimulus = '';
     }
@@ -187,16 +206,19 @@ var blank_phase = {
 var stimulus_change_phase = {
     type: 'html-keyboard-response',
     stimulus: function(){
-    	return '<svg>' +
+    	return 	'<canvas id="stimChangeCanvas" width="'+ window_w +'" height="'+ window_h +'"></canvas>' +
+    			'<svg>' +
 			    '<circle class="fixation-point"/>' + 
 			    '<circle class="reward-cue-left"  style="fill:'+rewardcolors[block_num][0]+';"/>'+
 			    '<circle class="reward-cue-right" style="fill:'+rewardcolors[block_num][1]+';"/>'+
-			    getstim_change_phase(stim, stim_radius) +
 			    '</svg>'; 
     },
     trial_duration: t_change,
     choices: jsPsych.NO_KEYS,
     data : {test_part: 'Change'},
+    on_load: function(){
+    	drawStimuliChange(stim, gabor_posn_left, gabor_posn_right);
+    },
     on_finish: function(data){
     	data.stimulus = '';
     }
@@ -214,7 +236,7 @@ var probe_and_response_phase = {
     },
     trial_duration: t_response,
     choices: [ResponseCode.no_change_key, ResponseCode.change_key],
-    data : {test_part: 'Probe_and_response'},
+    data: {test_part: 'Probe_and_response'},
     on_finish: function(data){
     	[score, feedback_text, Resp] = assessResponse(data.key_press, ResponseCode, block_num, trial_num, score);
     }
@@ -229,6 +251,7 @@ var response_feedback_gap = {
 			    '<circle class="reward-cue-right" style="fill:'+rewardcolors[block_num][1]+';"/>'+
 			    '</svg>';
 	},
+    data: {test_part: 'Response_feedback_gap'},
 	choices: jsPsych.NO_KEYS,
 	trial_duration: function(){
 		return block_info[block_num][0].TimeRespFB_Break[trial_num];
@@ -250,6 +273,7 @@ var feedback_phase = {
 		    '<p style="position:relative;z-index:1;">'+feedback_text+'</p>';
 	},
 	choices: jsPsych.NO_KEYS,
+    data: {test_part: 'Feedback'},
 	on_load: function(){
 		drawPieFeedback(score, block_num, trial_num);
 	},
@@ -277,6 +301,7 @@ var cumulative_feedback = {
 	},
 	trial_duration: t_cumulative_fb,
 	choices: jsPsych.NO_KEYS,
+    data: {test_part: 'Cumulative_feedback'},
 	on_load: function(){
 		drawCumulativePieFeedback(trial_num);
 	},
