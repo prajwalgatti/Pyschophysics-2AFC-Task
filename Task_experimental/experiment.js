@@ -9,7 +9,7 @@ function rand(min, max) {
 function get_stim(size) {
     var contrast = 100.0;
     var spatial_freq = 50;
-    var init_angles = [rand(15,85), rand(15,85)];
+    var init_angles = [0,100];//[rand(15,85), rand(15,85)];
     var changed_angles = [init_angles[0]+25, init_angles[1]+25]
     var motif = jsPsych.randomization.sampleWithoutReplacement([[0,0], [0,1], [1,0], [1,1]],1)[0];
     imgStrings = [gaborgen(init_angles[0], spatial_freq, contrast, size), gaborgen(init_angles[1], spatial_freq, contrast, size), gaborgen(changed_angles[0], spatial_freq, contrast, size), gaborgen(changed_angles[1], spatial_freq, contrast, size), motif];
@@ -87,7 +87,28 @@ function drawPieChart(){
                 d: getPath(val, pie)
             });
     }, 1000);
-}
+};
+
+console.time('image elem produce');
+var base_image_1 = new Image();
+var base_image_2 = new Image();
+base_image_1.src = stim[0];
+base_image_2.src = stim[1];
+gabor_posn_L = [window_w/2-window_w*350/1920-stim_radius, window_h/2-stim_radius];
+gabor_posn_R = [window_w/2+window_w*350/1920-stim_radius, window_h/2-stim_radius];
+console.timeEnd('image elem produce');
+
+function drawmygabor(){
+    console.time('canvgab');
+    var canvas = document.getElementById('testCanvas');
+    var context = canvas.getContext('2d');
+    console.log(canvas.width);
+    context.drawImage(base_image_1,x=gabor_posn_L[0],y=gabor_posn_L[1]);
+    context.drawImage(base_image_2,x=gabor_posn_R[0],y=gabor_posn_R[1]);
+    // context.drawImage(base_image_2,0,0);
+    // context.drawImage(base_image_1,x=500,y=500);
+    console.timeEnd('canvgab');
+};
 
 var fixation_phase = {
     type: 'html-keyboard-response',
@@ -113,9 +134,27 @@ var stimulus_and_cue_phase = {
     '<image class="left-stim" href="'+ stim[0] + '" style="transform:translate('+ (-stim_radius) +'px,'+ (-stim_radius) +'px)"/>' +
     '<image class="right-stim" href="'+ stim[1] + '" style="transform:translate('+ (-stim_radius) +'px,'+ (-stim_radius) +'px)"/>' +
     '</svg>',
-    trial_duration: 2000,
+    trial_duration: 200,
     choices: jsPsych.NO_KEYS,
     data : {test_part: 'stimulus_and_cue'},
+    on_finish: function(data){
+        data.stimulus = '';
+    }
+};
+
+var stimulus_and_cue_phase_ = {
+    type: 'html-keyboard-response',
+    stimulus: '<canvas id="testCanvas" width="'+ window_w +'" height="'+ window_h +'"></canvas>'+
+    '<svg xmlns="http://www.w3.org/2000/svg">' +
+    '<circle class="fixation-point"/>' +
+    '<circle class="reward-cue-left"/>'+
+    '<circle class="reward-cue-right"/>'+
+    '</svg>',
+    trial_duration: 20000,
+    data : {test_part: 'stimulus_and_cue'},
+    on_load: function(){
+        drawmygabor();
+    },
     on_finish: function(data){
         data.stimulus = '';
     }
@@ -203,13 +242,13 @@ expt_timeline = [];
 expt_timeline.push(fullscr);
 expt_timeline.push(welcome);
 expt_timeline.push(fixation_phase);
-expt_timeline.push(stimulus_and_cue_phase);
+expt_timeline.push(stimulus_and_cue_phase_);
 expt_timeline.push(blank_phase);
 expt_timeline.push(stimulus_change_phase);
 expt_timeline.push(probe_and_response_phase);
 expt_timeline.push(new_feedback_phase);
 expt_timeline.push(fixation_phase);
-expt_timeline.push(stimulus_and_cue_phase);
+expt_timeline.push(stimulus_and_cue_phase_);
 expt_timeline.push(blank_phase);
 expt_timeline.push(stimulus_change_phase);
 expt_timeline.push(probe_and_response_phase);

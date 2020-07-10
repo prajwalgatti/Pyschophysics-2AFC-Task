@@ -24,6 +24,12 @@ html, body {
   background-color:rgb(127, 127, 127);
 }
 
+canvas{
+  position:fixed;
+  top:0;
+  left:0;
+}
+
 svg {
   position:fixed;
   top:0;
@@ -76,4 +82,3 @@ svg {
   r: 0.78125%;
   fill: #0000ff;
 }
-

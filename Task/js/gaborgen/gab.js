@@ -2,7 +2,7 @@
 var arrmax, arrmin, deg2rad, gaborgen, meshgrid, pi, rescale, rescale_core;
 
 gaborgen = function(tilt, sf, _contrast, _size) {
-  var a, aspectratio, b, contrast, gab_x, gab_y, gridArray, i, j, m, multConst, phase, preSinWave, ref, reso, sc, scaledM, sf_max, sf_min, sinWave, tilt_max, tilt_min, varScale, x, x_centered, x_factor, y, y_centered, y_factor;
+  var a, aspectratio, b, contrast, gab_x, gab_y, gridArray, i, j, m, multConst, phase, preSinWave, ref, reso, sc, scaledM, sf_max, sf_min, sinWave, tilt_max, tilt_min, varScale, x, x_centered, x_factor, y, y_centered, y_factor, base_image;
   // if ((tilt > 100 || tilt < 1) || (sf > 100 || sf < 1)) {
   //   console.log("ERROR: gaborgen arguenment input out of bounds");
   // }
@@ -15,7 +15,7 @@ gaborgen = function(tilt, sf, _contrast, _size) {
   tilt_max = 90;
   sf_min = .01;
   sf_max = .1;
-  tilt = rescale_core(tilt, tilt_min, tilt_max, 1, 100);
+  // tilt = rescale_core(tilt, tilt_min, tilt_max, 1, 100);
   sf = rescale_core(sf, sf_min, sf_max, 1, 100);
   x = reso / 2;
   y = reso / 2;
@@ -41,8 +41,11 @@ gaborgen = function(tilt, sf, _contrast, _size) {
   }
   sinWave = numeric.sin(preSinWave);
   m = numeric.add(.5, numeric.mul(contrast, numeric.transpose(numeric.mul(numeric.mul(multConst, numeric.exp(numeric.add(numeric.div(x_factor, varScale), numeric.div(y_factor, varScale)))), sinWave))));
-  scaledM = rescale(m, 0, 254);
-  return numeric.imageURL([scaledM, scaledM, scaledM]);
+  // scaledM = rescale(m, 0, 254);
+  scaledM = rescale(m, 0, 256);
+  base_image = new Image();
+  base_image.src = numeric.imageURL([scaledM, scaledM, scaledM]);
+  return base_image;
 };
 
 pi = 3.1416;
