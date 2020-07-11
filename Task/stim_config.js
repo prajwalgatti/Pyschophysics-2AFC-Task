@@ -82,6 +82,9 @@ const t_intertrialbreak = 2000;
 /* Inter-block interval */
 const t_interblockbreak = 10000;
 
+/* Duration of NoResponse Reset Instruction Display */
+const t_noresp_reset = 5000;
+
 /***********************************/
 /* Feedback  */
 /***********************************/
