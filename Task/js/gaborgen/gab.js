@@ -41,8 +41,7 @@ gaborgen = function(tilt, sf, _contrast, _size) {
   }
   sinWave = numeric.sin(preSinWave);
   m = numeric.add(.5, numeric.mul(contrast, numeric.transpose(numeric.mul(numeric.mul(multConst, numeric.exp(numeric.add(numeric.div(x_factor, varScale), numeric.div(y_factor, varScale)))), sinWave))));
-  // scaledM = rescale(m, 0, 254);
-  scaledM = rescale(m, 0, 256);
+  scaledM = rescale(m, 0, 254);
   base_image = new Image();
   base_image.src = numeric.imageURL([scaledM, scaledM, scaledM]);
   return base_image;

@@ -64,7 +64,7 @@ const ResponseCode = {
 	change_key: 77 /* 77: m/M*/
 };
 
-const NoRespThreshold = 5;
+const NoRespThreshold = 5; // Set value to Infinity to disable
 var NoRespCounter = 0;
 var reset_block = false;
 
