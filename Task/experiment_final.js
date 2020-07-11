@@ -4,17 +4,20 @@
 /* Experiment functions */
 /******************************/
 
-function generateGaborStimulus(block_num, trial_num, size) {
-	if(block_num > numblocks || trial_num > numtrials){
-		console.log("Error: block_num or trial_num exceeds set limit");
-		return undefined;
+function generateGaborStimulus(b_num, t_num, size) {
+	if(t_num == numtrials){
+		b_num++;
+		t_num = 0;
+		if(b_num >= numblocks){
+			return undefined;
+		}
 	}
 	var contrast = 100.0;
 	var spatial_freq = 25.0;
-	var initial_angles = [block_info[block_num][1].Alpha_L[trial_num],
-						  block_info[block_num][1].Alpha_R[trial_num]];
-	var change_angles = [block_info[block_num][1].Delta_L[trial_num],
-						 block_info[block_num][1].Delta_R[trial_num]];
+	var initial_angles = [block_info[b_num][1].Alpha_L[t_num],
+						  block_info[b_num][1].Alpha_R[t_num]];
+	var change_angles = [block_info[b_num][1].Delta_L[t_num],
+						 block_info[b_num][1].Delta_R[t_num]];
 	var stim_arr = [gaborgen(initial_angles[0], spatial_freq, contrast, size), 
 					gaborgen(initial_angles[1], spatial_freq, contrast, size)];
 	(change_angles[0] != 0) ? stim_arr.push(gaborgen(initial_angles[0]+change_angles[0], spatial_freq, contrast, size)) : stim_arr.push(0);
@@ -55,14 +58,15 @@ function getstim_probe(){
 /******************************/
 /* Variables */
 /******************************/
-
-var experiment_timeline = [];
-var bock_idx, trial_idx;
 var block_num=0, trial_num=0;
 const ResponseCode = {
 	no_change_key: 73, /* 73: i/I */
 	change_key: 77 /* 77: m/M*/
 };
+
+const NoRespThreshold = 5;
+var NoRespCounter = 0;
+var reset_block = false;
 
 var window_h = window.screen.height;
 var window_w = window.screen.width;
@@ -149,8 +153,24 @@ var inter_trial_break = {
     func: function(done){
         setTimeout(done, t_intertrialbreak);
 		stim.length = 0;
-		stim = generateGaborStimulus(block_num, trial_num, stim_size);
+		stim = generateGaborStimulus(block_num, trial_num+1, stim_size);
     }
+};
+
+var reset_block_instruction = {
+	type: 'custom-call-function',
+	stimulus: 'No Response limit reached. Restarting the block.',
+	data:{test_part: 'Reset_block'},
+	async: true,
+	func: function(done){
+		setTimeout(done, t_noresp_reset);
+		stim.length = 0;
+		stim = generateGaborStimulus(block_num, 0, stim_size);
+	},
+	on_finish: function(){
+		score = {trial: 0, total: 0, gi: 0, li: 0, gf: 0,
+			la: 0, net: 0, netgi: 0, netla: 0};
+	}
 };
 
 var fixation_phase = {
@@ -279,12 +299,6 @@ var feedback_phase = {
 	},
 	on_finish: function(){
     	console.log(`block: ${block_num}...trial: ${trial_num}`); /* Debug code (Remove later) */
-    	if(trial_num == numtrials-1){
-    		block_num = block_num + 1; 
-    		trial_num = 0;
-    	} else {
-    		trial_num++;
-    	}
     }
 };
 
@@ -303,35 +317,93 @@ var cumulative_feedback = {
 	choices: jsPsych.NO_KEYS,
     data: {test_part: 'Cumulative_feedback'},
 	on_load: function(){
-		drawCumulativePieFeedback(trial_num);
+		drawCumulativePieFeedback();
 	},
 	post_trial_gap: t_post_cumulative_fb_gap
 }; 
 
 
+var if_mid_block = {
+	timeline: [mid_block_break],
+	conditional_function: function(){
+		if(trial_num == (numtrials*0.5)-1){
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+};
+
+var if_end_block = {
+	timeline: [cumulative_feedback, inter_block_break],
+	conditional_function: function(){
+		if(trial_num == numtrials-1 && reset_block != true){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+};
+
+var if_reset_block = {
+	timeline: [reset_block_instruction],
+	conditional_function: function(){
+		if(reset_block){
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+}
+
 /************************************/
 /* Generate experiment timeline */
 /************************************/
 
-experiment_timeline.push(fullscr);
-experiment_timeline.push(welcome);
+var trial_timeline = [fixation_phase, stimulus_and_cue_phase, blank_phase, stimulus_change_phase, probe_and_response_phase, response_feedback_gap, feedback_phase, inter_trial_break, if_mid_block];
 
-for(block_idx=0; block_idx<numblocks; block_idx++){
-	experiment_timeline.push(begin_block);
-
-	for(trial_idx=0; trial_idx<numtrials; trial_idx++){
-		experiment_timeline.push(fixation_phase);
-		experiment_timeline.push(stimulus_and_cue_phase);
-		experiment_timeline.push(blank_phase);
-		experiment_timeline.push(stimulus_change_phase);
-		experiment_timeline.push(probe_and_response_phase);
-		experiment_timeline.push(response_feedback_gap);
-		experiment_timeline.push(feedback_phase);
-		experiment_timeline.push(inter_trial_break);	
-		if(trial_idx == ((numtrials*0.5)-1)){
-			experiment_timeline.push(mid_block_break);
+var trial_loop_node = {
+	timeline: trial_timeline,
+	loop_function: function(){
+		if(Resp == 'NoResp'){
+			/* No Response Handler */
+			if(++NoRespCounter == NoRespThreshold){
+				reset_block = true;
+				return false;
+			}
+		}
+		if(trial_num == numtrials-1){
+			return false;
+		}
+		else{
+			trial_num++;
+			return true;
 		}
 	}
-	experiment_timeline.push(cumulative_feedback);
-	experiment_timeline.push(inter_block_break);
-}
+};
+
+var block_timeline = [begin_block, trial_loop_node, if_end_block, if_reset_block];
+
+var block_loop_node = {
+	timeline: block_timeline,
+	loop_function: function(){
+		NoRespCounter = 0; // Reset No Response counter
+		if(reset_block){
+			reset_block = false;
+			trial_num = 0;
+			return true;
+		}
+		if(block_num<numblocks){
+			trial_num = 0;
+			block_num++;
+			return true;
+		} else{
+			return false;
+		}
+	}
+};
+
+var experiment_timeline = [fullscr, welcome, block_loop_node];

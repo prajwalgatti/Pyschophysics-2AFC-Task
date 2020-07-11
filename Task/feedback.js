@@ -55,7 +55,7 @@ function drawPieFeedback(scores, block_num, trial_num){
 	return;
 }
 
-function drawCumulativePieFeedback(trial_num){
+function drawCumulativePieFeedback(){
 	drawPieChart(old_angle, old_angle, false);
 	return;
 }
