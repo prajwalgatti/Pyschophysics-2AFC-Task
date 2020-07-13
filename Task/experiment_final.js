@@ -68,16 +68,6 @@ const NoRespThreshold = 5; // Set value to Infinity to disable
 var NoRespCounter = 0;
 var reset_block = false;
 
-var window_h = window.screen.height;
-var window_w = window.screen.width;
-var stim_size = (500*window_w)/1920;
-var stim_radius = stim_size/2;
-var cx = window_w/2;
-var cy = window_h/2;
-var probe_height = (25*window_w)/1920;
-var probe_width  = (20*window_h)/1080;
-var gabor_posn_left = [window_w/2-window_w*350/1920-stim_radius, window_h/2-stim_radius];
-var gabor_posn_right = [window_w/2+window_w*350/1920-stim_radius, window_h/2-stim_radius];
 //generate first trial's stimuli
 var stim = generateGaborStimulus(block_num, trial_num, stim_size);
 
@@ -109,7 +99,9 @@ var welcome = {
     type: 'html-keyboard-response',
     stimulus: 'Welcome to the experiment. Press any key to begin.',
     data: {test_part: 'Welcome'},
-    on_start: function() {$('body').css('cursor', 'none');}
+    on_start: function() {
+    	$('body').css('cursor', 'none'); /* Disable cursor during the experiment */
+    }
 };
 
 var begin_block = {
@@ -176,9 +168,9 @@ var reset_block_instruction = {
 var fixation_phase = {
     type: 'html-keyboard-response',
     stimulus: function() {
-    	return '<svg><circle class="fixation-point"/>' +
-			    '<circle class="reward-cue-left"  style="fill:'+rewardcolors[block_num][0]+';"/>'+
-			    '<circle class="reward-cue-right" style="fill:'+rewardcolors[block_num][1]+';"/>'+
+    	return '<svg><circle class="fixation-point" cx="'+fixation_point_attr.cx+'" cy="'+fixation_point_attr.cy+'" r="'+fixation_point_attr.r+'"/>' +
+			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcolors[block_num][0]+'"/>'+
+			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcolors[block_num][1]+'"/>'+
     			'</svg>';
     },
     choices: jsPsych.NO_KEYS,
@@ -191,9 +183,9 @@ var stimulus_and_cue_phase = {
     stimulus: function(){
     	return	'<canvas id="stimulusCanvas" width="'+ window_w +'" height="'+ window_h +'"></canvas>' +
     			'<svg>' +
-    			'<circle class="fixation-point"/>' + 
-			    '<circle class="reward-cue-left"  style="fill:'+rewardcolors[block_num][0]+';"/>'+
-			    '<circle class="reward-cue-right" style="fill:'+rewardcolors[block_num][1]+';"/>'+
+    			'<circle class="fixation-point" cx="'+ fixation_point_attr.cx +'" cy="'+ fixation_point_attr.cy +'" r="'+ fixation_point_attr.r +'"/>' + 
+			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcolors[block_num][0]+'"/>'+
+			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcolors[block_num][1]+'"/>'+
     			'</svg>';
     },
     trial_duration: function(){
@@ -213,9 +205,9 @@ var blank_phase = {
     type: 'html-keyboard-response',
     stimulus: function(){
     	return	'<svg>' +
-			    '<circle class="fixation-point"/>' +
-			    '<circle class="reward-cue-left"  style="fill:'+rewardcolors[block_num][0]+';"/>'+
-			    '<circle class="reward-cue-right" style="fill:'+rewardcolors[block_num][1]+';"/>'+
+			    '<circle class="fixation-point" cx="'+ fixation_point_attr.cx +'" cy="'+ fixation_point_attr.cy +'" r="'+ fixation_point_attr.r +'"/>' +
+			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcolors[block_num][0]+'"/>'+
+			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcolors[block_num][1]+'"/>'+
 			    '</svg>';
     },
     choices: jsPsych.NO_KEYS,
@@ -228,9 +220,9 @@ var stimulus_change_phase = {
     stimulus: function(){
     	return 	'<canvas id="stimChangeCanvas" width="'+ window_w +'" height="'+ window_h +'"></canvas>' +
     			'<svg>' +
-			    '<circle class="fixation-point"/>' + 
-			    '<circle class="reward-cue-left"  style="fill:'+rewardcolors[block_num][0]+';"/>'+
-			    '<circle class="reward-cue-right" style="fill:'+rewardcolors[block_num][1]+';"/>'+
+			    '<circle class="fixation-point" cx="'+ fixation_point_attr.cx +'" cy="'+ fixation_point_attr.cy +'" r="'+ fixation_point_attr.r +'"/>' + 
+			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcolors[block_num][0]+'"/>'+
+			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcolors[block_num][1]+'"/>'+
 			    '</svg>'; 
     },
     trial_duration: t_change,
@@ -249,9 +241,9 @@ var probe_and_response_phase = {
     stimulus: function(){
     	return	'<svg>' +
     			getstim_probe() +
-			    '<circle class="fixation-point"/>' +
-			    '<circle class="reward-cue-left"  style="fill:'+rewardcolors[block_num][0]+';"/>'+
-			    '<circle class="reward-cue-right" style="fill:'+rewardcolors[block_num][1]+';"/>'+
+			    '<circle class="fixation-point" cx="'+ fixation_point_attr.cx +'" cy="'+ fixation_point_attr.cy +'" r="'+ fixation_point_attr.r +'"/>' +
+			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcolors[block_num][0]+'"/>'+
+			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcolors[block_num][1]+'"/>'+
 			    '</svg>';
     },
     trial_duration: t_response,
@@ -266,9 +258,9 @@ var response_feedback_gap = {
 	type: 'html-keyboard-response',
 	stimulus: function(){
     	return	'<svg>' +
-    			'<circle class="fixation-point"/>' + 
-			    '<circle class="reward-cue-left"  style="fill:'+rewardcolors[block_num][0]+';"/>'+
-			    '<circle class="reward-cue-right" style="fill:'+rewardcolors[block_num][1]+';"/>'+
+    			'<circle class="fixation-point" cx="'+ fixation_point_attr.cx +'" cy="'+ fixation_point_attr.cy +'" r="'+ fixation_point_attr.r +'"/>' + 
+			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcolors[block_num][0]+'"/>'+
+			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcolors[block_num][1]+'"/>'+
 			    '</svg>';
 	},
     data: {test_part: 'Response_feedback_gap'},
@@ -286,9 +278,9 @@ var feedback_phase = {
 	trial_duration: t_feedback,
 	prompt: function(){
 		return '<svg>'+
-		    '<svg id="feedback-pie-chart" x="42.1875%" y="42.1875%" width="15.745%" height="15.745%" viewBox="-1 -1 2 2"></svg>' + 
-		    '<circle class="reward-cue-left"  style="fill:'+rewardcolors[block_num][0]+';"/>'+
-			'<circle class="reward-cue-right" style="fill:'+rewardcolors[block_num][1]+';"/>'+
+		    '<svg id="feedback-pie-chart" x="'+pie_attr.x+'" y="'+pie_attr.y+'" width="'+pie_attr.width+'" height="'+pie_attr.height+'" viewBox="-1 -1 2 2"></svg>' + 
+			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcolors[block_num][0]+'"/>'+
+			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcolors[block_num][1]+'"/>'+
 		    '</svg>'+
 		    '<p style="position:relative;z-index:1;">'+feedback_text+'</p>';
 	},
@@ -305,11 +297,11 @@ var feedback_phase = {
 var cumulative_feedback = {
 	type: 'html-keyboard-response',
 	stimulus: function(){
-		return '<p class="score-text" style="transform:translateY(29.255%);">Total Score</p>' +
+		return '<p class="score-text" style="transform:translateY('+score_text_attr.y+');">Total Score</p>' +
 			'<svg>'+
-		    '<svg id="feedback-pie-chart" x="42.1875%" y="42.1875%" width="15.745%" height="15.745%" viewBox="-1 -1 2 2"></svg>' + 
-		    '<circle class="reward-cue-left"  style="fill:'+rewardcolors[block_num][0]+';"/>'+
-			'<circle class="reward-cue-right" style="fill:'+rewardcolors[block_num][1]+';"/>'+
+		    '<svg id="feedback-pie-chart" x="'+pie_attr.x+'" y="'+pie_attr.y+'" width="'+pie_attr.width+'" height="'+pie_attr.height+'" viewBox="-1 -1 2 2"></svg>' + 
+			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcolors[block_num][0]+'"/>'+
+			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcolors[block_num][1]+'"/>'+
 		    '</svg>'+
 		    '<p style="position:relative;z-index:1;">'+get_cumulative_feedback_text(score.total)+'</p>';
 	},
@@ -363,7 +355,8 @@ var if_reset_block = {
 /* Generate experiment timeline */
 /************************************/
 
-var trial_timeline = [fixation_phase, stimulus_and_cue_phase, blank_phase, stimulus_change_phase, probe_and_response_phase, response_feedback_gap, feedback_phase, inter_trial_break, if_mid_block];
+var trial_timeline = [fixation_phase, stimulus_and_cue_phase, blank_phase, stimulus_change_phase,
+ probe_and_response_phase, response_feedback_gap, feedback_phase, inter_trial_break, if_mid_block];
 
 var trial_loop_node = {
 	timeline: trial_timeline,
