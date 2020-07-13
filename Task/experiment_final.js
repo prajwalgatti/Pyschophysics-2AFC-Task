@@ -106,7 +106,7 @@ var welcome = {
 
 var begin_block = {
 	type: 'html-keyboard-response',
-	stimulus: 'Press any key to begin block.',
+	stimulus: 'Press any key to begin the block.',
 	trial_duration: wait_forblock,
 	post_trial_gap: t_startblockin,
     data: {test_part: 'Begin_block'}

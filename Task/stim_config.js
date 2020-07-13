@@ -134,7 +134,9 @@ var score_text_attr = {
 	y: '29.255%'
 }
 
-function set_dimensions(PPI){
+// function set_dimensions(PPI){
+
+var PPI = 85.33333333333333;
 	/*
 	arguments: 
 	return: need not return anything, editing css selector attributes and global vars
@@ -194,15 +196,41 @@ function set_dimensions(PPI){
 	if(dist == undefined){
 		/* Exclude the screen */
 		exclude_flag = true;
+		console.log('Can\'t work with this screen. Please contact experimenter. ');
 		/* Do something to show exclude screen */
 	}
 
 	/* Set dimensions */
 	stim_size = Math.tan(task_dimensions.stimWinPix*Math.PI/180) * dist * PPI /2.54;
 	stim_radius = stim_size/2;
+	
 	probe_height = 2.5 * Math.tan(task_dimensions.cueArrowHeight*Math.PI/180) * dist * PPI /2.54;
 	probe_width = 2.0 * Math.tan(task_dimensions.cueArrowHeight*Math.PI/180) * dist * PPI /2.54;
-	gabor_posn_left = NaN;
-	gabor_posn_right = NaN;
+	
+	var pixShift = Math.tan(task_dimensions.pixShift*Math.PI/180) * dist * PPI /2.54;
+	gabor_posn_left = [window_w/2-pixShift-stim_radius, window_h/2-stim_radius];
+	gabor_posn_right = [window_w/2+pixShift-stim_radius, window_h/2-stim_radius];
 
-}
+	fixation_point_attr.cx = '50%';
+	fixation_point_attr.cy = '50%';
+	fixation_point_attr.r = ((100*Math.tan(task_dimensions.fixationRadius*Math.PI/180)/window_w) * dist * PPI /2.54) + '%';
+
+	var cue_locn = Math.tan(task_dimensions.cue_locn*Math.PI/180) * dist * PPI /2.54;
+	reward_cue_L_attr.cx = (100*(window_w/2 - cue_locn)/window_w) + '%';
+	reward_cue_L_attr.cy = '50%'
+	reward_cue_L_attr.r = ((100*Math.tan(task_dimensions.cue_radius*Math.PI/180) * dist * PPI /2.54)/window_w) + '%';
+
+	reward_cue_R_attr.cx = (100*(window_w/2 + cue_locn)/window_w) + '%';
+	reward_cue_R_attr.cy = '50%';
+	reward_cue_R_attr.r = ((100*Math.tan(task_dimensions.cue_radius*Math.PI/180) * dist * PPI /2.54)/window_w) + '%';
+
+	var pieRadius = Math.tan(task_dimensions.pieRadius*Math.PI/180) * dist * PPI /2.54;
+	pie_attr.width = (100*2*pieRadius/window_w) + '%';
+	pie_attr.height = (100*2*pieRadius/window_w) + '%';
+	pie_attr.x = (100*(window_w/2-pieRadius)/window_w) + '%';
+	pie_attr.y = (100*(window_w/2-pieRadius)/window_w) + '%';//(100*(window_h/2-pieRadius)/window_h) + '%'; /* This might not work; needs testing */
+
+	score_text_attr.y = (100*(window_h/2 - 2*pieRadius)/window_h) + '%';
+
+	/* Debug code (remove later) */
+	console.log(dist);
