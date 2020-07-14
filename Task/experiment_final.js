@@ -69,23 +69,14 @@ const ResponseCode = {
 const NoRespThreshold = 5; // Set value to Infinity to disable
 var NoRespCounter = 0;
 var reset_block = false;
-
+var PPI;
 //generate first trial's stimuli
 var stim = generateGaborStimulus(block_num, trial_num, stim_size);
 
 /* Init experiment variables*/
 var score_arr = [];
-var score = {
-	trial: 0,
-	total: 0,
-	gi: 0,
-	li: 0,
-	gf: 0,
-	la: 0,
-	net: 0,
-	netgi: 0,
-	netla: 0
-};
+var score = {trial: 0, total: 0, gi: 0, li: 0, gf: 0,
+			la: 0, net: 0, netgi: 0, netla: 0};
 var feedback_text, Resp;
 
 /******************************/
@@ -97,13 +88,47 @@ var fullscr = {
     fullscreen_mode: true
 };
 
+var get_PPI = {
+	type: 'resize',
+	item_width: 3 + 3/8,
+	item_height: 2+ 1/8,
+	prompt: "<p>Click and drag the lower right corner of the box until the box is the same size as a credit card held up to the screen.</p>",
+	on_finish: function(data){
+		PPI = data.pixels_unit_screen;
+	}
+};
+
+var confirm_PPI = {
+	type: 'image-button-response',
+	stimulus: 'img/cns.jpg',
+	stimulus_width: function(){
+		return PPI*4;
+	},
+	choices: ['Recalibrate', 'Proceed'],
+	prompt: '<p>If scaling worked, then the image above should be 4 inches wide.<br>If not, please recalibrate.</p>',
+	on_finish: function(){
+		distance_from_screen = set_dimensions(PPI);
+	}
+};
+
+var dist_from_screen_instruction = {
+	type: 'html-button-response',
+	stimulus: function(){
+		return 'Please position your head ' + distance_from_screen + 'cm away from the screen.<br><br>';
+	},
+	choices: ['Done']
+};
+
 var welcome = {
     type: 'html-keyboard-response',
-    stimulus: 'Welcome to the experiment. Press any key to begin.',
+    stimulus: 'Welcome to the experiment.',
     data: {test_part: 'Welcome'},
+    trial_duration: t_welcome_scr,
     on_start: function() {
-    	$('body').css('cursor', 'none'); /* Disable cursor during the experiment */
-    	set_dimensions();
+    	$('body').css({
+    		'cursor':'none',  /* Disable cursor during the experiment */
+    		'background-color':'rgb(127, 127, 127)'
+    	});
     }
 };
 
@@ -352,11 +377,24 @@ var if_reset_block = {
 			return false;
 		}
 	}
-}
+};
 
 /************************************/
 /* Generate experiment timeline */
 /************************************/
+
+var measure_PPI_loop_node = {
+	timeline: [get_PPI, confirm_PPI],
+	loop_function: function(){
+		var choice = jsPsych.data.get().last(1).values()[0].button_pressed;
+		if(choice == 1){
+			return false;
+		}
+		else if(choice == 0){
+			return true;
+		}
+	}
+};
 
 var trial_timeline = [fixation_phase, stimulus_and_cue_phase, blank_phase, stimulus_change_phase,
  probe_and_response_phase, response_feedback_gap, feedback_phase, inter_trial_break, if_mid_block];
@@ -402,4 +440,4 @@ var block_loop_node = {
 	}
 };
 
-var experiment_timeline = [fullscr, welcome, block_loop_node];
+var experiment_timeline = [fullscr, measure_PPI_loop_node, dist_from_screen_instruction, welcome, block_loop_node];

@@ -85,6 +85,9 @@ const t_interblockbreak = 10000;
 /* Duration of NoResponse Reset Instruction Display */
 const t_noresp_reset = 5000;
 
+/* Duration of welcome screen */
+const t_welcome_scr = 4000;
+
 /***********************************/
 /* Feedback  */
 /***********************************/
@@ -104,6 +107,7 @@ var probe_height = (25*window_w)/1920;
 var probe_width  = (20*window_h)/1080;
 var gabor_posn_left = [window_w/2-window_w*350/1920-stim_radius, window_h/2-stim_radius];
 var gabor_posn_right = [window_w/2+window_w*350/1920-stim_radius, window_h/2-stim_radius];
+var distance_from_screen;
 
 var fixation_point_attr = {
 	cx: '50%',
@@ -136,32 +140,6 @@ var score_text_attr = {
 
 function set_dimensions(PPI = 85.33333333333333){
 
-	/*
-	arguments: PPI
-	return: need not return anything, editing css selector attributes and global vars
-
-	***********************
-	! regenerate initial stim
-	
-	Variables to change
-
-	stim_size
-	stim_radius
-	probe_height
-	probe_width
-	gabor_posn_left, gabor_posn_right
-
-	css changes
-	.reward-cue-left
-	.reward-cue-right
-	.fixation-point
-	.score-text
-	#stimulusCanvas (window_w, window_h values)
-	#stimChangeCanvas (window_w, window_h values)
-	#feedback-pie-chart
-	
-	*/
-
 	/* Init */
 	// Task dimensions in degrees of visual angle
 	var task_dimensions = {
@@ -181,7 +159,7 @@ function set_dimensions(PPI = 85.33333333333333){
 	/* screen dimensions in inches */
 	var screen_width = window.screen.width/PPI;
 	var screen_height = window.screen.height/PPI;
-	var total_width;
+	// var total_width;
 	var dist;
 
 	/* Check for best fit */
@@ -196,6 +174,7 @@ function set_dimensions(PPI = 85.33333333333333){
 		/* Exclude the screen */
 		exclude_flag = true;
 		console.log('Can\'t work with this screen. Please contact experimenter. ');
+		return NaN;
 		/* Do something to show exclude screen */
 	}
 
@@ -231,8 +210,26 @@ function set_dimensions(PPI = 85.33333333333333){
 
 	score_text_attr.y = (100*(window_h/2 - 2*pieRadius)/window_h) + '%';
 
+	/* Generate first set of stimuli  */	
+	stim = generateGaborStimulus(block_num, trial_num, stim_size);
+
 	/* Debug code (remove later) */
 	console.log(dist);
-
-	stim = generateGaborStimulus(block_num, trial_num, stim_size);
+	
+	return dist;
 };
+
+/* Debug code (remove later) */
+function print_stim_details(){
+	console.log('PPI:',PPI);
+	console.log('window_width:', window_w);
+	console.log('window_height:', window_h);
+	console.log('dist:', distance_from_screen);
+	console.log('total_width:', total_width);
+	console.log('stim_size:', stim_size);
+	console.log('fixation_r:', fixation_point_attr.r);
+	console.log('reward_cue_L_attr.cx:', reward_cue_L_attr.cx);
+	console.log('reward_cue_R_attr.cx:', reward_cue_R_attr.cx);
+	console.log('reward_cue_L_attr.r:', reward_cue_L_attr.r);
+	console.log('pie_attr.width:', pie_attr.width);
+}
