@@ -13,15 +13,17 @@ function generateGaborStimulus(b_num, t_num, size) {
 		}
 	}
 	var contrast = 100.0;
-	var spatial_freq = 25.0;
+	var spatial_freq = 35;
+	var sigma = size/7;
+	var phase = 0;
 	var initial_angles = [block_info[b_num][1].Alpha_L[t_num],
 						  block_info[b_num][1].Alpha_R[t_num]];
 	var change_angles = [block_info[b_num][1].Delta_L[t_num],
 						 block_info[b_num][1].Delta_R[t_num]];
-	var stim_arr = [gaborgen(initial_angles[0], spatial_freq, contrast, size), 
-					gaborgen(initial_angles[1], spatial_freq, contrast, size)];
-	(change_angles[0] != 0) ? stim_arr.push(gaborgen(initial_angles[0]+change_angles[0], spatial_freq, contrast, size)) : stim_arr.push(0);
-	(change_angles[1] != 0) ? stim_arr.push(gaborgen(initial_angles[1]+change_angles[1], spatial_freq, contrast, size)) : stim_arr.push(0);
+	var stim_arr = [gaborgen(initial_angles[0], spatial_freq, sigma, phase, contrast, size), 
+					gaborgen(initial_angles[1], spatial_freq, sigma, phase, contrast, size)];
+	(change_angles[0] != 0) ? stim_arr.push(gaborgen(initial_angles[0]+change_angles[0], spatial_freq, sigma, phase, contrast, size)) : stim_arr.push(0);
+	(change_angles[1] != 0) ? stim_arr.push(gaborgen(initial_angles[1]+change_angles[1], spatial_freq, sigma, phase, contrast, size)) : stim_arr.push(0);
 	return stim_arr;
 }
 
@@ -101,6 +103,7 @@ var welcome = {
     data: {test_part: 'Welcome'},
     on_start: function() {
     	$('body').css('cursor', 'none'); /* Disable cursor during the experiment */
+    	set_dimensions();
     }
 };
 

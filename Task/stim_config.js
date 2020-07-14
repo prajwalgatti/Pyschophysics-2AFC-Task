@@ -134,11 +134,10 @@ var score_text_attr = {
 	y: '29.255%'
 }
 
-// function set_dimensions(PPI){
+function set_dimensions(PPI = 85.33333333333333){
 
-var PPI = 85.33333333333333;
 	/*
-	arguments: 
+	arguments: PPI
 	return: need not return anything, editing css selector attributes and global vars
 
 	***********************
@@ -177,7 +176,7 @@ var PPI = 85.33333333333333;
 	};
 
 	var allowed_distances_from_screen = [60, 55, 50, 45, 40]; /* in cm */
-	var allowance = 0.125; /*in inches*/
+	var allowance = 1/8; /*in inches*/
 	var exclude_flag = false;
 	/* screen dimensions in inches */
 	var screen_width = window.screen.width/PPI;
@@ -234,3 +233,6 @@ var PPI = 85.33333333333333;
 
 	/* Debug code (remove later) */
 	console.log(dist);
+
+	stim = generateGaborStimulus(block_num, trial_num, stim_size);
+};
