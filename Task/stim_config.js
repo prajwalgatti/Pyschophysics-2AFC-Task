@@ -89,10 +89,10 @@ const t_noresp_reset = 5000;
 const t_welcome_scr = 4000;
 
 /***********************************/
-/* Feedback  */
+/* Media files  */
 /***********************************/
 const audio_files = ['audio_files/correct.wav', 'audio_files/incorrect.wav', 'audio_files/noresp.wav'];
-
+const image_files = ['img/cns.jpg'];
 /***********************************/
 /* Assign stimulus dimensions */
 /***********************************/
