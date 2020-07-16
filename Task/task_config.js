@@ -178,7 +178,7 @@ function getTaskDesign(block){
 	}
 
 	/* 1:skew CT1, 2:skew CT2, 0:balanced nrCT */
-	var motif_arr  = [1,2,3,4]; //1:[1,1], 2:[1,0], 3:[0,1], 4:[0,0]
+	var motif_arr  = [1,2,3,4]; // 1:[1,1], 2:[1,0], 3:[0,1], 4:[0,0]
 	var rep_nr = numtrials*0.50/motif_arr.length;
 	var rep_sk = numtrials*0.25/motif_arr.length;
 
@@ -188,7 +188,7 @@ function getTaskDesign(block){
 	   right shuffles motifs for each skewed contingency uniformly, so, rep_sk.
 	*/
 	var change = new Array(numtrials);
-	temp_array = [ jsPsych.randomization.repeat(motif_arr, rep_sk), jsPsych.randomization.repeat(motif_arr, rep_sk),
+	temp_array = [jsPsych.randomization.repeat(motif_arr, rep_sk), jsPsych.randomization.repeat(motif_arr, rep_sk),
 	 jsPsych.randomization.repeat(motif_arr, rep_nr)];
 	for(i=0; i<change.length; i++){
 		switch(reward_skew_cue[i]){

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<head>
+	<title>2-AFC Training</title>
+    <link href="js/jspsych/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+    <link rel="stylesheet" href="js/gaborgen/css/jquery-ui.min.css">
+    <link rel='stylesheet' type='text/css' href='css/default_style.css'>
+    <!-- Library Scripts-->
+   <script src="js/d3-random.v2.min.js"></script>
+    <script src="js/jspsych/jspsych.js"></script>
+    <script src="js/jspsych/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="js/jspsych/plugins/jspsych-html-button-response.js"></script>
+    <script src="js/jspsych/plugins/jspsych-image-button-response.js"></script>
+    <script src="js/jspsych/plugins/jspsych-fullscreen.js"></script>
+    <script src="js/jspsych/custom_plugins/custom-jspsych-call-function.js"></script>
+    <script src="js/jspsych/custom_plugins/custom-jspsych-resize.js"></script>
+    <script src="js/gaborgen/numeric.min.js"></script>
+    <script src="js/gaborgen/jquery-min.js" type="text/javascript"></script>
+    <script src="js/gaborgen/jquery-ui.min.js"></script>
+    <script src="js/gaborgen/gab.js"></script>
+    <!-- Training scripts -->
+    <script src="stim_config.js"></script>
+    <script src="task_config.js"></script>
+    <script src="feedback.js"></script>
+    <script src="experiment.js"></script>
+
+</head>
+<body></body>
+	<script>
+        jsPsych.init({
+            timeline: experiment_timeline,
+            preload_images: image_files,
+            show_preload_progress_bar: false
+        });
+	</script>
+</html>

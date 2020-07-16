@@ -4,49 +4,17 @@
 /* Reward Cue Colors */
 /******************************/
 
-const red 	 = '#960000';
-const blue 	 = '#000096';
-const green  = '#006400';
-const violet = '#640064';
-
-const color_code = 1;
-var gain_norm_color, gain_skew_color, loss_norm_color, loss_skew_color;
-switch(color_code){
-	case 1:
-		gain_norm_color = red;
-		gain_skew_color = blue;
-		loss_norm_color = green;
-		loss_skew_color = violet;
-		break;
-	case 2:
-		gain_norm_color = red;
-		gain_skew_color = blue;
-		loss_norm_color = violet;
-		loss_skew_color = green;
-		break;
-	case 3:
-		gain_norm_color = blue;
-		gain_skew_color = red;
-		loss_norm_color = green;
-		loss_skew_color = violet;
-		break;
-	case 4:
-		gain_norm_color = blue;
-		gain_skew_color = red;
-		loss_norm_color = violet;
-		loss_skew_color = green;
-}
+const rewardcuecolor = '#FFFFFF';
 
 /***********************************/
 /* Time Stamps (in milliseconds) */
 /***********************************/
 
 /* keypress to start/resume a block */
-const wait_forblock = 600000;
+const wait_forblock = 30000;
 
 /* period after keypress to start/resume a block */
 const t_startblockin = 1000;
-const t_resumeblockin = 60000;
 
 /* Min and max duration of stimulus display before cue appears */
 const t_cuestim_min = 200;
@@ -70,28 +38,22 @@ const t_respfb_break_max = 1000;
 
 /* Duration of trial feedback text display */
 const t_feedback = 2000;
-const t_pie_animation = 1000;
-
-/* Duration of cumulative block feedback display*/
-const t_cumulative_fb = 3000;
-const t_post_cumulative_fb_gap = 1000;
 
 /* Inter-trial interval */
 const t_intertrialbreak = 2000;
 
 /* Inter-block interval */
-const t_interblockbreak = 10000;
-
-/* Duration of NoResponse Reset Instruction Display */
-const t_noresp_reset = 5000;
+const t_interblockbreak = 2000;
 
 /* Duration of welcome screen */
 const t_welcome_scr = 4000;
 
+/* Duration between end of training and resart of training */
+const t_train_again_onset = 3000;
+
 /***********************************/
 /* Media files  */
 /***********************************/
-const audio_files = ['audio_files/correct.wav', 'audio_files/incorrect.wav', 'audio_files/noresp.wav'];
 const image_files = ['img/cns.jpg'];
 
 /***********************************/
@@ -128,17 +90,6 @@ var reward_cue_R_attr = {
 	r: '0.78125%'
 };
 
-var pie_attr = {
-	x: '42.1875%',
-	y: '42.1875%',
-	width: '15.745%',
-	height: '15.745%'
-}
-
-var score_text_attr = {
-	y: '29.255%'
-}
-
 function set_dimensions(PPI = 85.33333333333333){
 
 	/* Init */
@@ -150,7 +101,6 @@ function set_dimensions(PPI = 85.33333333333333){
 		pixShift: 9.097296349,
 		cue_locn: 15.34967358,
 		cue_radius: 0.393187713,
-		pieRadius: 3.925783839,
 		total_width: 29.36764513
 	};
 
@@ -203,14 +153,6 @@ function set_dimensions(PPI = 85.33333333333333){
 	reward_cue_R_attr.cy = '50%';
 	reward_cue_R_attr.r = ((100*Math.tan(task_dimensions.cue_radius*Math.PI/180) * dist * PPI /2.54)/window_w) + '%';
 
-	var pieRadius = Math.tan(task_dimensions.pieRadius*Math.PI/180) * dist * PPI /2.54;
-	pie_attr.width = (100*2*pieRadius/window_w) + '%';
-	pie_attr.height = (100*2*pieRadius/window_w) + '%';
-	pie_attr.x = (100*(window_w/2-pieRadius)/window_w) + '%';
-	pie_attr.y = (100*(window_w/2-pieRadius)/window_w) + '%';//(100*(window_h/2-pieRadius)/window_h) + '%'; /* This might not work; needs testing */
-
-	score_text_attr.y = (100*(window_h/2 - 2*pieRadius)/window_h) + '%';
-
 	/* Generate first set of stimuli  */	
 	stim = generateGaborStimulus(block_num, trial_num, stim_size);
 
@@ -219,18 +161,3 @@ function set_dimensions(PPI = 85.33333333333333){
 	
 	return dist;
 };
-
-/* Debug code (remove later) */
-function print_stim_details(){
-	console.log('PPI:',PPI);
-	console.log('window_width:', window_w);
-	console.log('window_height:', window_h);
-	console.log('dist:', distance_from_screen);
-	console.log('total_width:', total_width);
-	console.log('stim_size:', stim_size);
-	console.log('fixation_r:', fixation_point_attr.r);
-	console.log('reward_cue_L_attr.cx:', reward_cue_L_attr.cx);
-	console.log('reward_cue_R_attr.cx:', reward_cue_R_attr.cx);
-	console.log('reward_cue_L_attr.r:', reward_cue_L_attr.r);
-	console.log('pie_attr.width:', pie_attr.width);
-}
