@@ -209,7 +209,7 @@ function set_dimensions(PPI = 85.33333333333333){
 	pie_attr.x = (100*(window_w/2-pieRadius)/window_w) + '%';
 	pie_attr.y = (100*(window_w/2-pieRadius)/window_w) + '%';//(100*(window_h/2-pieRadius)/window_h) + '%'; /* This might not work; needs testing */
 
-	score_text_attr.y = (100*(window_h/2 - 2*pieRadius)/window_h) + '%';
+	score_text_attr.y = (100*(window_h/2 - pieRadius)/window_h) + '%';
 
 	/* Generate first set of stimuli  */	
 	stim = generateGaborStimulus(block_num, trial_num, stim_size);

@@ -14,11 +14,11 @@ function rewardAllocation(block_num, trial_num){
 			cont = nrGain;
 			console.log(JSON.parse(JSON.stringify('nrGain')));
 		}
-		else if(block_info[block_num][0].RewardSkew_Cue[trial_num] = 1){
+		else if(block_info[block_num][0].RewardSkew_Cue[trial_num] == 1){
 			cont = skGain1;
 			console.log(JSON.parse(JSON.stringify('skGain1')));
 		}
-		else if(block_info[block_num][0].RewardSkew_Cue[trial_num] = 2){
+		else if(block_info[block_num][0].RewardSkew_Cue[trial_num] == 2){
 			cont = skGain2;
 			console.log(JSON.parse(JSON.stringify('skGain2')));
 		}		

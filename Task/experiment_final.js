@@ -168,11 +168,11 @@ var inter_block_break = {
 var inter_trial_break = {
 	type: 'custom-call-function',
 	stimulus: function(){
-    	return '<svg>' +
-			    '<circle class="reward-cue-left"  style="fill:'+rewardcolors[block_num][0]+';"/>'+
-			    '<circle class="reward-cue-right" style="fill:'+rewardcolors[block_num][1]+';"/>'+
+		return '<svg>' +
+			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcolors[block_num][0]+'"/>'+
+			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcolors[block_num][1]+'"/>'+
     			'</svg>';
-    		},
+	},
     async: true,
     data: {test_part: 'Inter_trial_break'},
     func: function(done){

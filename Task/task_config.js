@@ -450,7 +450,6 @@ function getTaskDesign(block){
 /************************************************************/
 /* Generate trial & angle information tables for all blocks */
 /************************************************************/
-
 var block_info = new Array(numblocks);
 block_info[0] = getTaskDesign(block = 1);
 block_info[1] = getTaskDesign(block = 2);
