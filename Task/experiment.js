@@ -370,13 +370,30 @@ var if_mid_block = {
 };
 
 var if_end_block = {
-	timeline: [cumulative_feedback, inter_block_break],
+	timeline: [cumulative_feedback],
 	conditional_function: function(){
 		if(trial_num == numtrials-1 && reset_block != true){
 			return true;
 		}
 		else{
 			return false;
+		}
+	}
+};
+
+var if_inter_block = {
+	timeline: [inter_block_break],
+	conditional_function: function(){
+		if(reset_block){
+			return false;
+		}
+		else{
+			if(block_num == (numblocks-1)){
+				return false;
+			}
+			else if(block_num < numblocks){
+				return true;
+			}
 		}
 	}
 };
@@ -433,7 +450,7 @@ var trial_loop_node = {
 	}
 };
 
-var block_timeline = [begin_block, trial_loop_node, if_end_block, if_reset_block];
+var block_timeline = [begin_block, trial_loop_node, if_end_block, if_inter_block, if_reset_block];
 
 var block_loop_node = {
 	timeline: block_timeline,

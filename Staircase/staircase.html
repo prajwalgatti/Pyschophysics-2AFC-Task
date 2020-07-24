@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <head>
-    <title>2-AFC Reward Task</title>
+    <title>Staircase</title>
 
     <link href="js/jspsych/css/jspsych.css" rel="stylesheet" type="text/css"></link>
     <link rel="stylesheet" href="js/gaborgen/css/jquery-ui.min.css">
@@ -25,23 +25,29 @@
     <script src="stim_config.js"></script>
     <script src="task_config.js"></script>
     <script src="reward_assessment.js"></script>
-    <script src="feedback.js"></script>
-    <script src="experiment_final.js"></script>
+    <script src="experiment.js"></script>
 </head>
 <body></body>
     <script>
 
         /* arbitrary values for subject ID, change angle & no response threshold */
         SubjectID = 1024;
-        change_angle = 25;
-        NoRespThreshold = 5;
+        var experiment_type = '2-AFC stair-case';
+        var task_type = 'GvsN_LvsN';
+        var date = Date().toString();
+
+        var details = {
+            title: 'details',
+            SubjectID: SubjectID,
+            experiment_type: experiment_type,
+            task_type: task_type,
+            date: date
+        };
 
         jsPsych.init({
             timeline: experiment_timeline,
-            preload_audio: audio_files,
             preload_images: image_files,
             show_preload_progress_bar: false,
-            use_webaudio: false,
             on_finish: function() {
                 $('body').css('cursor', 'default');
                 jsPsych.data.displayData();

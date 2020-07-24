@@ -39,15 +39,15 @@ function assessResponse(keypress, ResponseCode, block_num, trial_num){
 	}
 
 	/* Generate feedback text */
-	feedback_text = (change)? 'Change on the probed side.' : 'No change on the probed side';
+	feedback_text = (change)? 'Change on the probed side' : 'No change on the probed side';
 	if(Resp == 'Hit' || Resp == 'CR'){
-		feedback_text = 'Correct response.<br>' + feedback_text; 
+		feedback_text = 'Correct response<br>' + feedback_text; 
 	}
 	else if(Resp == 'Miss' || Resp == 'FA'){
-		feedback_text = 'Incorrect response.<br>' + feedback_text;
+		feedback_text = 'Incorrect response<br>' + feedback_text;
 	}
 	else if(Resp == 'NoResp'){
-		feedback_text = 'No response recorded.<br>' + feedback_text;
+		feedback_text = 'No response recorded';
 	}
 
 	return feedback_text;

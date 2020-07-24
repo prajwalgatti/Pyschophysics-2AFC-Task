@@ -4,7 +4,7 @@
 /* Experiment functions */
 /******************************/
 
-function generateGaborStimulus(b_num, t_num, size) {
+function generateGaborStimulus(b_num, t_num, size){
 	if(t_num == numtrials){
 		b_num++;
 		t_num = 0;
@@ -63,9 +63,19 @@ function getstim_probe(){
 var block_num=0, trial_num=0;
 /* Response Mapping. */
 /* See: https://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes */
-const ResponseCode = {no_change_key: 66, change_key: 89};
+const ResponseCode = {no_change_key: 66, change_key: 89}; 
+
+var NoRespThreshold = 5; // Set value to Infinity to disable
+var NoRespCounter = 0;
+var reset_block = false;
 var PPI;
-var feedback_text;
+
+/* Init experiment variables*/
+var score_arr = [];
+var score = {trial: 0, total: 0, gi: 0, li: 0, gf: 0,
+			la: 0, net: 0, netgi: 0, netla: 0};
+var feedback_text, Resp;
+
 /******************************/
 /* Experiment Phases/Nodes */
 /******************************/
@@ -73,6 +83,15 @@ var feedback_text;
 var fullscr = {
     type:'fullscreen',
     fullscreen_mode: true
+};
+
+var task_info_generation = {
+	type: 'call-function',
+	async: false,
+	func: function(){
+		[block_cue, hemi_rewardcue, block_info] = generateBlockInfo(SubjectID, change_angle);
+        rewardcolors = getRewardCueColor(block_cue, hemi_rewardcue); 
+	}
 };
 
 var get_PPI = {
@@ -93,8 +112,10 @@ var confirm_PPI = {
 	},
 	choices: ['Recalibrate', 'Proceed'],
 	prompt: '<p>If scaling worked, then the image above should be 4 inches wide.<br>If not, please recalibrate.</p>',
-	on_finish: function(){
-		distance_from_screen = set_dimensions(PPI);
+	on_finish: function(data){
+		if(data.button_pressed == 1){ /* If 'Proceed' was clicked */
+			distance_from_screen = set_dimensions(PPI);
+		}
 	}
 };
 
@@ -127,22 +148,39 @@ var begin_block = {
     data: {test_part: 'Begin_block'}
 };
 
+var mid_block_break = {
+	type: 'html-keyboard-response',
+	stimulus: 'BREAK. Maintain position. Press any key to skip.',
+	trial_duration: t_resumeblockin,
+    data: {test_part: 'Mid_block_break'}
+};
+
 var inter_block_break = {
 	type:'html-keyboard-response',
-	stimulus: 'Next block starts soon.',
+	stimulus: function(){
+		if(!(block_num==(numtrials-1) && trial_num==(numtrials-1))){ 
+			/* Do not display after the final block is completed */
+			return 'Next block starts soon.';
+		}
+	},
 	trial_duration: t_interblockbreak,
 	choices: jsPsych.NO_KEYS,
-    data: {test_part: 'Inter_block_break'}
+    data: {test_part: 'Inter_block_break'},
+	on_finish: function(){
+		score_arr.push(score);
+		score = {trial: 0, total: 0, gi: 0, li: 0, gf: 0,
+			la: 0, net: 0, netgi: 0, netla: 0};
+	}
 };
 
 var inter_trial_break = {
 	type: 'custom-call-function',
 	stimulus: function(){
-    	return '<svg>' +
-			    '<circle class="reward-cue-left"  style="fill:'+rewardcuecolor+';"/>'+
-			    '<circle class="reward-cue-right" style="fill:'+rewardcuecolor+';"/>'+
+		return '<svg>' +
+			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcolors[block_num][0]+'"/>'+
+			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcolors[block_num][1]+'"/>'+
     			'</svg>';
-    		},
+	},
     async: true,
     data: {test_part: 'Inter_trial_break'},
     func: function(done){
@@ -152,23 +190,35 @@ var inter_trial_break = {
     }
 };
 
+var reset_block_instruction = {
+	type: 'custom-call-function',
+	stimulus: 'No Response limit reached. Restarting the block.',
+	data:{test_part: 'Reset_block'},
+	async: true,
+	func: function(done){
+		setTimeout(done, t_noresp_reset);
+		stim.length = 0;
+		stim = generateGaborStimulus(block_num, 0, stim_size);
+	},
+	on_finish: function(){
+		score = {trial: 0, total: 0, gi: 0, li: 0, gf: 0,
+			la: 0, net: 0, netgi: 0, netla: 0};
+	}
+};
+
 var end_training = {
 	type: 'html-keyboard-response',
-	stimulus: 'End of 2-AFC training. <br><br>If you would like to train again, press Y. <br>If you are finished, please contact the experimenter.',
-	choices: [89],
-	data: {test_part: 'End_training'},
-	post_trial_gap: t_train_again_onset,
-	on_start: function(){
-		stim = generateGaborStimulus(0, 0, stim_size);
-	}
+	stimulus: 'End of training.<br><br>Please contact the experimenter.',
+	choices: jsPsych.NO_KEYS,
+	data: {test_part: 'End_training'}
 };
 
 var fixation_phase = {
     type: 'html-keyboard-response',
     stimulus: function() {
     	return '<svg><circle class="fixation-point" cx="'+fixation_point_attr.cx+'" cy="'+fixation_point_attr.cy+'" r="'+fixation_point_attr.r+'"/>' +
-			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcuecolor+'"/>'+
-			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcuecolor+'"/>'+
+			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcolors[block_num][0]+'"/>'+
+			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcolors[block_num][1]+'"/>'+
     			'</svg>';
     },
     choices: jsPsych.NO_KEYS,
@@ -182,8 +232,8 @@ var stimulus_and_cue_phase = {
     	return	'<canvas id="stimulusCanvas" width="'+ window_w +'" height="'+ window_h +'"></canvas>' +
     			'<svg>' +
     			'<circle class="fixation-point" cx="'+ fixation_point_attr.cx +'" cy="'+ fixation_point_attr.cy +'" r="'+ fixation_point_attr.r +'"/>' + 
-			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcuecolor+'"/>'+
-			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcuecolor+'"/>'+
+			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcolors[block_num][0]+'"/>'+
+			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcolors[block_num][1]+'"/>'+
     			'</svg>';
     },
     trial_duration: function(){
@@ -204,8 +254,8 @@ var blank_phase = {
     stimulus: function(){
     	return	'<svg>' +
 			    '<circle class="fixation-point" cx="'+ fixation_point_attr.cx +'" cy="'+ fixation_point_attr.cy +'" r="'+ fixation_point_attr.r +'"/>' +
-			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcuecolor+'"/>'+
-			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcuecolor+'"/>'+
+			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcolors[block_num][0]+'"/>'+
+			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcolors[block_num][1]+'"/>'+
 			    '</svg>';
     },
     choices: jsPsych.NO_KEYS,
@@ -219,8 +269,8 @@ var stimulus_change_phase = {
     	return 	'<canvas id="stimChangeCanvas" width="'+ window_w +'" height="'+ window_h +'"></canvas>' +
     			'<svg>' +
 			    '<circle class="fixation-point" cx="'+ fixation_point_attr.cx +'" cy="'+ fixation_point_attr.cy +'" r="'+ fixation_point_attr.r +'"/>' + 
-			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcuecolor+'"/>'+
-			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcuecolor+'"/>'+
+			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcolors[block_num][0]+'"/>'+
+			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcolors[block_num][1]+'"/>'+
 			    '</svg>'; 
     },
     trial_duration: t_change,
@@ -240,15 +290,15 @@ var probe_and_response_phase = {
     	return	'<svg>' +
     			getstim_probe() +
 			    '<circle class="fixation-point" cx="'+ fixation_point_attr.cx +'" cy="'+ fixation_point_attr.cy +'" r="'+ fixation_point_attr.r +'"/>' +
-			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcuecolor+'"/>'+
-			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcuecolor+'"/>'+
+			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcolors[block_num][0]+'"/>'+
+			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcolors[block_num][1]+'"/>'+
 			    '</svg>';
     },
     trial_duration: t_response,
     choices: [ResponseCode.no_change_key, ResponseCode.change_key],
     data: {test_part: 'Probe_and_response'},
     on_finish: function(data){
-    	feedback_text = assessResponse(data.key_press, ResponseCode, block_num, trial_num);
+    	[score, feedback_text, Resp] = assessResponse(data.key_press, ResponseCode, block_num, trial_num, score);
     }
 };
 
@@ -257,8 +307,8 @@ var response_feedback_gap = {
 	stimulus: function(){
     	return	'<svg>' +
     			'<circle class="fixation-point" cx="'+ fixation_point_attr.cx +'" cy="'+ fixation_point_attr.cy +'" r="'+ fixation_point_attr.r +'"/>' + 
-			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcuecolor+'"/>'+
-			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcuecolor+'"/>'+
+			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcolors[block_num][0]+'"/>'+
+			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcolors[block_num][1]+'"/>'+
 			    '</svg>';
 	},
     data: {test_part: 'Response_feedback_gap'},
@@ -269,21 +319,93 @@ var response_feedback_gap = {
 };
 
 var feedback_phase = {
-	type: 'html-keyboard-response',
-	stimulus: function(){	
-		return feedback_text;
+	type: 'audio-keyboard-response',
+	stimulus: function(){
+		return getAudioFeedback(Resp);
 	},
 	trial_duration: t_feedback,
+	prompt: function(){
+		return '<svg>'+
+		    '<svg id="feedback-pie-chart" x="'+pie_attr.x+'" y="'+pie_attr.y+'" width="'+pie_attr.width+'" height="'+pie_attr.height+'" viewBox="-1 -1 2 2"></svg>' + 
+			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcolors[block_num][0]+'"/>'+
+			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcolors[block_num][1]+'"/>'+
+		    '</svg>'+
+		    '<p style="position:relative;z-index:1;">'+feedback_text+'</p>';
+	},
 	choices: jsPsych.NO_KEYS,
-	data: {test_part: 'Feedback'},
+    data: {test_part: 'Feedback'},
+	on_load: function(){
+		drawPieFeedback(score, block_num, trial_num);
+	},
 	on_finish: function(){
     	console.log(`block: ${block_num}...trial: ${trial_num}`); /* Debug code (Remove later) */
-	}
+    }
 };
+
+var cumulative_feedback = {
+	type: 'html-keyboard-response',
+	stimulus: function(){
+		return '<p class="score-text" style="transform:translateY('+score_text_attr.y+');">Total Score</p>' +
+			'<svg>'+
+		    '<svg id="feedback-pie-chart" x="'+pie_attr.x+'" y="'+pie_attr.y+'" width="'+pie_attr.width+'" height="'+pie_attr.height+'" viewBox="-1 -1 2 2"></svg>' + 
+			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcolors[block_num][0]+'"/>'+
+			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcolors[block_num][1]+'"/>'+
+		    '</svg>'+
+		    '<p style="position:relative;z-index:1;">'+get_cumulative_feedback_text(score.total)+'</p>';
+	},
+	trial_duration: t_cumulative_fb,
+	choices: jsPsych.NO_KEYS,
+    data: {test_part: 'Cumulative_feedback'},
+	on_load: function(){
+		drawCumulativePieFeedback();
+	},
+	post_trial_gap: t_post_cumulative_fb_gap
+}; 
 
 /************************************/
 /* Generate experiment timeline */
 /************************************/
+
+var if_end_block = {
+	timeline: [cumulative_feedback],
+	conditional_function: function(){
+		if(trial_num == numtrials-1 && reset_block != true){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+};
+
+var if_inter_block = {
+	timeline: [inter_block_break],
+	conditional_function: function(){
+		if(reset_block){
+			return false;
+		}
+		else{
+			if(block_num == (numblocks-1)){
+				return false;
+			}
+			else if(block_num < numblocks){
+				return true;
+			}
+		}
+	}
+};
+
+var if_reset_block = {
+	timeline: [reset_block_instruction],
+	conditional_function: function(){
+		if(reset_block){
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+};
 
 var measure_PPI_loop_node = {
 	timeline: [get_PPI, confirm_PPI],
@@ -298,25 +420,20 @@ var measure_PPI_loop_node = {
 	}
 };
 
-var if_inter_block_break = {
-	timeline: [inter_block_break],
-	conditional_function: function(){
-		if(block_num == (numblocks-1)){
-			return false;
-		}
-		else if(block_num < numblocks){
-			return true;
-		}
-	}
-};
-
 var trial_timeline = [fixation_phase, stimulus_and_cue_phase, blank_phase, stimulus_change_phase,
  probe_and_response_phase, response_feedback_gap, feedback_phase, inter_trial_break];
 
 var trial_loop_node = {
 	timeline: trial_timeline,
 	loop_function: function(){
-		if(trial_num == (numtrials-1)){
+		if(Resp == 'NoResp'){
+			/* No Response Handler */
+			if(++NoRespCounter == NoRespThreshold){
+				reset_block = true;
+				return false;
+			}
+		}
+		if(trial_num == numtrials-1){
 			return false;
 		}
 		else{
@@ -326,36 +443,25 @@ var trial_loop_node = {
 	}
 };
 
-var block_timeline = [begin_block, trial_loop_node, if_inter_block_break];
+var block_timeline = [begin_block, trial_loop_node, if_end_block, if_inter_block, if_reset_block];
 
 var block_loop_node = {
 	timeline: block_timeline,
 	loop_function: function(){
+		NoRespCounter = 0; // Reset No Response counter
+		if(reset_block){
+			reset_block = false;
+			trial_num = 0;
+			return true;
+		}
 		if(block_num<numblocks-1){
 			trial_num = 0;
 			block_num++;
 			return true;
-		}
-		else{
+		} else{
 			return false;
 		}
 	}
 };
 
-training_timeline = [block_loop_node, end_training];
-
-var training_loop_node = {
-	timeline: training_timeline,
-	loop_function: function(data){
-		if(jsPsych.data.get().last(1).values()[0].key_press == 89){
-			trial_num = 0;
-			block_num = 0;
-			return true;
-		}
-		else{
-			return false;
-		}
-	}
-};
-
-var experiment_timeline = [fullscr, measure_PPI_loop_node, dist_from_screen_instruction, welcome, training_loop_node];
+var experiment_timeline = [task_info_generation, fullscr, measure_PPI_loop_node, dist_from_screen_instruction, welcome, block_loop_node, end_training];
