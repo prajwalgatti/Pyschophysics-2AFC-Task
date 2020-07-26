@@ -18,6 +18,7 @@
     <script src="js/gaborgen/jquery-ui.min.js"></script>
     <script src="js/gaborgen/gab.js"></script>
     <!-- Training scripts -->
+    <script src="instructions.js"></script>
     <script src="stim_config.js"></script>
     <script src="task_config.js"></script>
     <script src="feedback.js"></script>
@@ -26,6 +27,22 @@
 </head>
 <body></body>
 	<script>
+
+        /* arbitrary values for subject ID, change angle & no response threshold */
+        SubjectID = 1024;
+        var experiment_type = '2-AFC training';
+        var date = Date().toString();
+
+        var details = {
+            title: 'details',
+            SubjectID: SubjectID,
+            experiment_type: experiment_type,
+            date: date,
+            numblocks: numblocks,
+            numtrials: numtrials,
+            Response_Codes: ResponseCode
+        };
+
         jsPsych.init({
             timeline: experiment_timeline,
             preload_images: image_files,

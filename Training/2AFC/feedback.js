@@ -1,13 +1,18 @@
 function assessResponse(keypress, ResponseCode, block_num, trial_num){
-	var Response, Resp, feedback_text, change;
+	var Response, Resp, respcounter;
+
 	if(keypress == ResponseCode.change_key){
 		Response = 1;
+		ResponseKey[block_num][trial_num] = [keypress, 1];
 	}
 	else if(keypress ==  ResponseCode.no_change_key){
 		Response = 0;
+		ResponseKey[block_num][trial_num] = [keypress, 0];
 	}
 	else{
-		Response =5;
+		Response = 5;
+		ResponseKey[block_num][trial_num] = [NaN, 5];
+		ResponseTime[block_num][trial_num] = NaN;
 	}
 
 	/* Determine response */
@@ -37,6 +42,34 @@ function assessResponse(keypress, ResponseCode, block_num, trial_num){
 			Resp = 'NoResp';
 		}
 	}
+
+	switch(Resp){
+		case 'Hit':
+			respcounter = [1,0,0,0];
+			break;
+		
+		case 'CR':
+			respcounter = [0,0,0,1];
+			break;
+
+		case 'Miss':
+			respcounter = [0,1,0,0];
+			break;
+
+		case 'FA':
+			respcounter = [0,0,1,0];
+			break;
+
+		case 'NoResp':
+			respcounter = [0,0,0,0];
+			break;
+	}
+
+	/* Update  Contable */
+	Contable[block_num][0] = Contable[block_num][0] + respcounter[0];
+	Contable[block_num][1] = Contable[block_num][1] + respcounter[1];
+	Contable[block_num][2] = Contable[block_num][2] + respcounter[2];
+	Contable[block_num][3] = Contable[block_num][3] + respcounter[3];
 
 	/* Generate feedback text */
 	feedback_text = (change)? 'Change on the probed side' : 'No change on the probed side';

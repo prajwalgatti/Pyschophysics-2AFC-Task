@@ -68,6 +68,11 @@ var hemi_rewardcue;
 var block_info;
 var rewardcolors;
 
+var TrialStartTime = create2darray(numblocks, numtrials, NaN);
+var TrialEndTime = create2darray(numblocks, numtrials, NaN);
+var ResponseKey = create2darray(numblocks, numtrials, NaN);
+var ResponseTime = create2darray(numblocks, numtrials, NaN);
+
 /* Reward Contingencies */
 const r = 7.5;
 const nrGain  = {hit: r, 		miss: 0, 		fa: 0, 		  cr: r, 	   noresp: -2*r};
@@ -83,13 +88,13 @@ var Contable_skGain1 = new Array(numblocks);
 var Contable_skGain2 = new Array(numblocks);
 var Contable_skLoss1 = new Array(numblocks);
 var Contable_skLoss2 = new Array(numblocks);
-for(i=0; i<numblocks; i++){
-	Contable_nrGain[i]  = create2darray(2,2,0);
-	Contable_nrLoss[i]  = create2darray(2,2,0);
-	Contable_skGain1[i] = create2darray(2,2,0);
-	Contable_skGain2[i] = create2darray(2,2,0);
-	Contable_skLoss1[i] = create2darray(2,2,0);
-	Contable_skLoss2[i] = create2darray(2,2,0);
+for(let i=0; i<numblocks; i++){
+	Contable_nrGain[i]  = Array(4).fill(0);
+	Contable_nrLoss[i]  = Array(4).fill(0);
+	Contable_skGain1[i] = Array(4).fill(0);
+	Contable_skGain2[i] = Array(4).fill(0);
+	Contable_skLoss1[i] = Array(4).fill(0);
+	Contable_skLoss2[i] = Array(4).fill(0);
 }
 
 const base_score = (numtrials*0.25)*nrGain.hit*2;

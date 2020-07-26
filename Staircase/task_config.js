@@ -53,11 +53,6 @@ function diff(arr){
 /* function for deep copy */
 const clone = (items) => items.map(item => Array.isArray(item) ? clone(item) : item);
 
-/* function to find sum of integer array */
-function arr_sum(arr){
-	return arr.reduce((a, b) => a + b, 0);
-};
-
 /******************************/
 /* Experimental Variables */
 /******************************/
@@ -70,16 +65,17 @@ const numblocks = 80;
 const check_after_blocks = 5;
 var change_angle = 0;
 var increment = 5;
-var accuracy = 0;
 
-var Change_angles = new Array(numblocks);
-var Accuracy = new Array(numblocks);
+var Change_angles = new Array(numblocks).fill(NaN);
+var Accuracy = new Array(numblocks).fill(NaN);
 var Contable = new Array(numblocks);
 for(i=0; i<numblocks; i++){
 	Contable[i] = Array(4).fill(0);
 }
-
-
+var TrialStartTime = create2darray(numblocks, numtrials, NaN);
+var TrialEndTime = create2darray(numblocks, numtrials, NaN);
+var ResponseKey = create2darray(numblocks, numtrials, NaN);
+var ResponseTime = create2darray(numblocks, numtrials, NaN);
 
 /******************************/
 /* getTaskDesign */

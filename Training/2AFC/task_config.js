@@ -48,10 +48,19 @@ const clone = (items) => items.map(item => Array.isArray(item) ? clone(item) : i
 /******************************/
 /* Experimental Variables */
 /******************************/
-
+var SubjectID = 1024;
 const numtrials = 8;
 const numblocks = 5;
 const change_angles = [25, 25];
+
+var Contable = new Array(numblocks);
+for(i=0; i<numblocks; i++){
+	Contable[i] = Array(4).fill(0);
+}
+var TrialStartTime = create2darray(numblocks, numtrials, NaN);
+var TrialEndTime = create2darray(numblocks, numtrials, NaN);
+var ResponseKey = create2darray(numblocks, numtrials, NaN);
+var ResponseTime = create2darray(numblocks, numtrials, NaN);
 
 function getTaskDesign(block){
 	var temp_array, i;

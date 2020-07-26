@@ -37,7 +37,7 @@ const t_respfb_break_min = 500;
 const t_respfb_break_max = 1000;
 
 /* Duration of trial feedback text display */
-const t_feedback = 2000;
+const t_feedback = 1000;
 
 /* Inter-trial interval */
 const t_intertrialbreak = 2000;
@@ -72,6 +72,17 @@ var gabor_posn_left = [window_w/2-window_w*350/1920-stim_radius, window_h/2-stim
 var gabor_posn_right = [window_w/2+window_w*350/1920-stim_radius, window_h/2-stim_radius];
 var distance_from_screen;
 
+// Task dimensions in degrees of visual angle
+var task_dimensions = {
+	cueArrowHeight: 0.26212748,
+	fixationRadius: 0.2097024691,
+	stimWinPix: 6.524877734,
+	pixShift: 9.097296349,
+	cue_locn: 15.34967358,
+	cue_radius: 0.393187713,
+	total_width: 29.36764513
+};
+
 var fixation_point_attr = {
 	cx: '50%',
 	cy: '50%',
@@ -91,18 +102,6 @@ var reward_cue_R_attr = {
 };
 
 function set_dimensions(PPI = 85.33333333333333){
-
-	/* Init */
-	// Task dimensions in degrees of visual angle
-	var task_dimensions = {
-		cueArrowHeight: 0.26212748,
-		fixationRadius: 0.2097024691,
-		stimWinPix: 6.524877734,
-		pixShift: 9.097296349,
-		cue_locn: 15.34967358,
-		cue_radius: 0.393187713,
-		total_width: 29.36764513
-	};
 
 	var allowed_distances_from_screen = [60, 55, 50, 45, 40]; /* in cm */
 	var allowance = 1/8; /*in inches*/
@@ -161,3 +160,20 @@ function set_dimensions(PPI = 85.33333333333333){
 	
 	return dist;
 };
+
+function get_stim_details(){
+	var stim_details = {
+		title: 'stim_details',
+		task_dimensions: task_dimensions,
+		PPI: PPI,
+		window_width: window_w,
+		window_height: window_h,
+		distance_from_screen: distance_from_screen,
+		total_width: total_width,
+		stim_size: stim_size,
+		fixation_attributes: fixation_point_attr,
+		reward_cue_L_attributes: reward_cue_L_attr,
+		reward_cue_R_attributes: reward_cue_L_attr,
+	};
+	return stim_details;
+}

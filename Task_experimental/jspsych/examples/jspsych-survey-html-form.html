@@ -12,8 +12,15 @@
 
 	var form_trial = {
 		type: 'survey-html-form',
-		preamble: '<p> How are you feeling <b>right now?</b> </p>',
-	html: '<p> I am feeling <input name="first" type="text" />, <input name="second" type="text" />, and <input name="third" type="text" />.</p>'
+		preamble: '',
+		html: '<p> Pick  an integer between 1 & 4 to choose a random RB block. <br><input name="Gain" type="text" /></p>'+
+		'<br><br>'+
+		'<p> Pick a number between 1 & 4 to choose a random GV block. <br><input name="third" type="text" /></p>',
+		on_finish: function(data){
+			x = JSON.parse(data.responses);
+			console.log(data.responses);
+			console.log(JSON.parse(data.responses));
+		}
 	}
 
 	jsPsych.init({

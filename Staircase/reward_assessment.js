@@ -3,12 +3,16 @@ function assessResponse(keypress, ResponseCode, block_num, trial_num){
 
 	if(keypress == ResponseCode.change_key){
 		Response = 1;
+		ResponseKey[block_num][trial_num] = [keypress, 1];
 	}
 	else if(keypress ==  ResponseCode.no_change_key){
 		Response = 0;
+		ResponseKey[block_num][trial_num] = [keypress, 0];
 	}
 	else{
 		Response = 5;
+		ResponseKey[block_num][trial_num] = [NaN, 5];
+		ResponseTime[block_num][trial_num] = NaN;
 	}
 
 	/* Determining response type */

@@ -36,7 +36,7 @@ function drawPieChart(old_angle, new_angle, animate_flag = true){
                 });
         }, t_pie_animation);
     }
-}
+};
 
 function drawPieFeedback(scores, block_num, trial_num){
 	var new_angle;
@@ -53,12 +53,12 @@ function drawPieFeedback(scores, block_num, trial_num){
 	if(new_angle > 180){ new_angle = 180;}
 	old_angle = new_angle;
 	return;
-}
+};
 
 function drawCumulativePieFeedback(){
 	drawPieChart(old_angle, old_angle, false);
 	return;
-}
+};
 
 function getAudioFeedback(Resp){
 	if(Resp == 'Hit'|| Resp == 'CR'){
@@ -70,4 +70,4 @@ function getAudioFeedback(Resp){
 	else if(Resp == 'NoResp'){
 		return audio_files[2];
 	}
-}
+};

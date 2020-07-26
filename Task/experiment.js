@@ -57,14 +57,78 @@ function getstim_probe(){
 	}
 };
 
+function SubmitResults(block_num){
+	/* Appends JATOS Results at the end of each block. */
+	/* Each submission contains data from the previous submissions,
+	 so choose the last appended result for analysis */
+
+	var task_finished = 'No';
+	if(block_num == numblocks-1 && trial_num == numtrials-1){
+		task_finished = 'Yes';
+	}
+
+	var Contables = {
+			Contable_nrGain: Contable_nrGain,
+			Contable_nrLoss: Contable_nrLoss,
+			Contable_skGain1: Contable_skGain1,
+			Contable_skGain2: Contable_skGain2,
+			Contable_skLoss1: Contable_skLoss1,
+			Contable_skLoss2: Contable_skLoss2
+	};
+
+	var resultData = {
+		Task_completed: task_finished,
+		Details: details,
+		Stim_Details: get_stim_details(),
+		block_cue: block_cue,
+		hemi_rewardcue: hemi_rewardcue,
+		change_angle: change_angle,
+		Task_info: block_info,
+		Contables: Contables,
+		Scores: score_arr, /* CHECK */
+		StartTime: TrialStartTime,
+		EndTime: TrialEndTime,
+		ResponseKey: ResponseKey,
+		ResponseTime: ResponseTime,
+		NoRespThreshold: NoRespThreshold,
+		jspsych_data: jsPsych.data.get().json(),
+		Last_block: block_num+1
+	};
+
+	console.log(resultData);
+
+	/* Write result data to JATOS */
+	//jatos.appendResultData(resultData);
+
+};
+
+function ResetData(block_num){
+	if(reset_block == false){
+		return;
+	}
+	Contable_nrGain[block_num]  = Array(4).fill(0);
+	Contable_nrLoss[block_num]  = Array(4).fill(0);
+	Contable_skGain1[block_num] = Array(4).fill(0);
+	Contable_skGain2[block_num] = Array(4).fill(0);
+	Contable_skLoss1[block_num] = Array(4).fill(0);
+	Contable_skLoss2[block_num] = Array(4).fill(0);
+
+	TrialStartTime[block_num] = Array(numtrials).fill(NaN);
+	TrialEndTime[block_num] = Array(numtrials).fill(NaN);
+	ResponseKey[block_num] = Array(numtrials).fill(NaN);
+	ResponseTime[block_num] = Array(numtrials).fill(NaN);
+
+	score = {trial: 0, total: 0, gi: 0, li: 0, gf: 0,
+			la: 0, net: 0, netgi: 0, netla: 0};
+};
+
 /******************************/
 /* Variables */
 /******************************/
 var block_num=0, trial_num=0;
-const ResponseCode = {
-	no_change_key: 73, /* 73: i/I */
-	change_key: 77 /* 77: m/M*/
-};
+/* Response Mapping. */
+/* See: https://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes */
+const ResponseCode = {no_change_key: 66, change_key: 89}; 
 
 var NoRespThreshold = 5; // Set value to Infinity to disable
 var NoRespCounter = 0;
@@ -76,6 +140,8 @@ var score_arr = [];
 var score = {trial: 0, total: 0, gi: 0, li: 0, gf: 0,
 			la: 0, net: 0, netgi: 0, netla: 0};
 var feedback_text, Resp;
+
+var final_participant_score = 0;
 
 /******************************/
 /* Experiment Phases/Nodes */
@@ -128,6 +194,12 @@ var dist_from_screen_instruction = {
 	choices: ['Done']
 };
 
+var instructions = {
+	type: 'html-button-response',
+	stimulus: instruction_pages[0],
+	choices: ['Next']
+};
+
 var welcome = {
     type: 'html-keyboard-response',
     stimulus: 'Welcome to the experiment.',
@@ -154,6 +226,37 @@ var mid_block_break = {
 	stimulus: 'BREAK. Maintain position. Press any key to skip.',
 	trial_duration: t_resumeblockin,
     data: {test_part: 'Mid_block_break'}
+};
+
+var choose_random_blocks = {
+		type: 'survey-html-form',
+		preamble: '',
+		html: '<p> Pick an integer between 1 & 4 to choose a random RB block. <br><input name="gain" type="text"/></p>'+
+		'<br><br>'+
+		'<p> Pick an integer between 1 & 4 to choose a random GV block. <br><input name="loss" type="text"/></p>',
+		on_finish: function(data){
+			var gain_block = parseInt(JSON.parse(data.responses.gain));
+			var loss_block = parseInt(JSON.parse(data.responses.loss));
+
+			final_participant_score = get_final_score(gain_block, loss_block);
+
+			var finalScoreResult = {
+				SubjectID: SubjectID,
+				date: date,
+				gain_block_chosen: gain_block,
+				loss_block_chosen: loss_block,
+				final_participant_score: final_participant_score
+			};
+
+			// jatos.uploadResultFile(finalScoreResult, 'finalScoreResult.txt')
+
+		}
+};
+
+var end_task = {
+	type:'html-keyboard-response',
+	stimlus: 'End of task. <br>Thank you for participating!',
+	trial_duration: 2000
 };
 
 var inter_block_break = {
@@ -217,7 +320,10 @@ var fixation_phase = {
     },
     choices: jsPsych.NO_KEYS,
     trial_duration: t_fixation,
-    data : {test_part: 'fixation'}
+    data : {test_part: 'fixation'},
+    on_start: function(){
+    	TrialStartTime[block_num][trial_num] = Date.now();
+    }
 };
 
 var stimulus_and_cue_phase = {
@@ -293,6 +399,7 @@ var probe_and_response_phase = {
     data: {test_part: 'Probe_and_response'},
     on_finish: function(data){
     	[score, feedback_text, Resp] = assessResponse(data.key_press, ResponseCode, block_num, trial_num, score);
+    	ResponseTime[block_num][trial_num] = data.rt;
     }
 };
 
@@ -332,6 +439,7 @@ var feedback_phase = {
 		drawPieFeedback(score, block_num, trial_num);
 	},
 	on_finish: function(){
+		TrialEndTime[block_num][trial_num] = Date.now();
     	console.log(`block: ${block_num}...trial: ${trial_num}`); /* Debug code (Remove later) */
     }
 };
@@ -352,6 +460,9 @@ var cumulative_feedback = {
     data: {test_part: 'Cumulative_feedback'},
 	on_load: function(){
 		drawCumulativePieFeedback();
+	},
+	on_finish: function(){
+		SubmitResults(block_num);
 	},
 	post_trial_gap: t_post_cumulative_fb_gap
 }; 
@@ -457,6 +568,7 @@ var block_loop_node = {
 	loop_function: function(){
 		NoRespCounter = 0; // Reset No Response counter
 		if(reset_block){
+			ResetData(block_num);
 			reset_block = false;
 			trial_num = 0;
 			return true;
@@ -471,4 +583,4 @@ var block_loop_node = {
 	}
 };
 
-var experiment_timeline = [task_info_generation, fullscr, measure_PPI_loop_node, dist_from_screen_instruction, welcome, block_loop_node];
+var experiment_timeline = [task_info_generation, fullscr, measure_PPI_loop_node, dist_from_screen_instruction, instructions, welcome, block_loop_node, choose_random_blocks, end_task];

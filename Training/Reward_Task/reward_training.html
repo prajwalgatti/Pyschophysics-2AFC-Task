@@ -22,6 +22,7 @@
     <script src="js/gaborgen/jquery-ui.min.js"></script>
     <script src="js/gaborgen/gab.js"></script>
     <!-- Experiment scripts -->
+    <script src="instructions.js"></script>
     <script src="stim_config.js"></script>
     <script src="task_config.js"></script>
     <script src="reward_assessment.js"></script>
@@ -34,7 +35,22 @@
         /* arbitrary values for subject ID, change angle & no response threshold */
         SubjectID = 1024;
         change_angle = 25;
-        NoRespThreshold = 5;
+        NoRespThreshold = 10;
+
+        var experiment_type = 'Reward Task Training';
+        var task_type = 'GvsN_LvsN';
+        var date = Date().toString();
+
+        var details = {
+            title: 'details',
+            SubjectID: SubjectID,
+            experiment_type: experiment_type,
+            task_type: task_type,
+            date: date,
+            numblocks: numblocks,
+            numtrials: numtrials,
+            Response_Codes: ResponseCode
+        };
 
         jsPsych.init({
             timeline: experiment_timeline,

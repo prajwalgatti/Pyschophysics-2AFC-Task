@@ -53,6 +53,39 @@ function getstim_probe(){
 	}
 };
 
+function SubmitResults(block_num){
+	/* Appends JATOS Results at the end of each block. */
+	/* Each submission contains data from the previous submissions,
+	 so choose the last appended result for analysis */
+
+	var task_finished = 'No';
+	if(block_num == numblocks-1 && trial_num == numtrials-1){
+		task_finished = 'Yes';
+	}
+
+	var resultData = {
+		Task_completed: task_finished,
+		Details: details,
+		Stim_Details: get_stim_details(),
+		Task_info: block_info,
+		Contable: Contable,
+		Change_angles: Change_angles,
+		Accuracy: Accuracy,
+		StartTime: TrialStartTime,
+		EndTime: TrialEndTime,
+		ResponseKey: ResponseKey,
+		ResponseTime: ResponseTime,
+		Last_block: block_num
+	};
+
+	/* Write result data to JATOS */
+	//jatos.appendResultData(resultData);
+
+	if(task_finished == "Yes"){
+		//jatos.appendResultData(jsPsych.data.get().json());
+	}
+};
+
 /******************************/
 /* Variables */
 /******************************/
@@ -114,6 +147,12 @@ var dist_from_screen_instruction = {
 	choices: ['Done']
 };
 
+var instructions = {
+	type: 'html-button-response',
+	stimulus: instruction_pages[0],
+	choices: ['Next']
+};
+
 var welcome = {
     type: 'html-keyboard-response',
     stimulus: 'Welcome to the experiment.',
@@ -168,8 +207,13 @@ var end_block = {
 	type: 'call-function',
 	func: function(){
 		change_angle = update_change_angle(block_num, change_angle);
-		block_info = block_info.concat(generateBlockInfo(block_num+1, change_angle));
-		stim = generateGaborStimulus(block_num+1, 0, stim_size);
+		/* Send result data to JATOS */
+		SubmitResults(block_num); 
+		/* Generate info for the next block */
+		if(block_num < numblocks-1){
+			block_info = block_info.concat(generateBlockInfo(block_num+1, change_angle));
+			stim = generateGaborStimulus(block_num+1, 0, stim_size);
+		}
 	}
 };
 
@@ -184,6 +228,12 @@ var check_results = {
 		}
 	}
 };
+
+var exit_message = {
+	type: 'html-keyboard-response',
+	stimulus: 'End of Session',
+	trial_duration: t_exit
+};
  
 var fixation_phase = {
     type: 'html-keyboard-response',
@@ -195,7 +245,10 @@ var fixation_phase = {
     },
     choices: jsPsych.NO_KEYS,
     trial_duration: t_fixation,
-    data : {test_part: 'fixation'}
+    data : {test_part: 'fixation'},
+    on_start: function(){
+    	TrialStartTime[block_num][trial_num] = Date.now();
+    }
 };
 
 var stimulus_and_cue_phase = {
@@ -270,6 +323,8 @@ var probe_and_response_phase = {
     choices: [ResponseCode.no_change_key, ResponseCode.change_key],
     data: {test_part: 'Probe_and_response'},
     on_finish: function(data){
+    	TrialEndTime[block_num][trial_num] = Date.now();
+    	ResponseTime[block_num][trial_num] = data.rt;
     	Resp = assessResponse(data.key_press, ResponseCode, block_num, trial_num);
     	console.log(`block: ${block_num}...trial: ${trial_num}`); /* Debug code (Remove later) */
     	console.log(Contable[block_num]);
@@ -349,4 +404,4 @@ var block_loop_node = {
 	}
 };
 
-var experiment_timeline = [task_info_generation, fullscr, measure_PPI_loop_node, dist_from_screen_instruction, welcome, block_loop_node];
+var experiment_timeline = [task_info_generation, fullscr, measure_PPI_loop_node, dist_from_screen_instruction, instructions, welcome, block_loop_node, exit_message];

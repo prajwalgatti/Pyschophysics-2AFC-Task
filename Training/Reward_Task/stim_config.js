@@ -110,6 +110,18 @@ var gabor_posn_left = [window_w/2-window_w*350/1920-stim_radius, window_h/2-stim
 var gabor_posn_right = [window_w/2+window_w*350/1920-stim_radius, window_h/2-stim_radius];
 var distance_from_screen;
 
+// Task dimensions in degrees of visual angle
+var task_dimensions = {
+	cueArrowHeight: 0.26212748,
+	fixationRadius: 0.2097024691,
+	stimWinPix: 6.524877734,
+	pixShift: 9.097296349,
+	cue_locn: 15.34967358,
+	cue_radius: 0.393187713,
+	pieRadius: 3.925783839,
+	total_width: 29.36764513
+};
+
 var fixation_point_attr = {
 	cx: '50%',
 	cy: '50%',
@@ -140,19 +152,6 @@ var score_text_attr = {
 }
 
 function set_dimensions(PPI = 85.33333333333333){
-
-	/* Init */
-	// Task dimensions in degrees of visual angle
-	var task_dimensions = {
-		cueArrowHeight: 0.26212748,
-		fixationRadius: 0.2097024691,
-		stimWinPix: 6.524877734,
-		pixShift: 9.097296349,
-		cue_locn: 15.34967358,
-		cue_radius: 0.393187713,
-		pieRadius: 3.925783839,
-		total_width: 29.36764513
-	};
 
 	var allowed_distances_from_screen = [60, 55, 50, 45, 40]; /* in cm */
 	var allowance = 1/8; /*in inches*/
@@ -220,17 +219,22 @@ function set_dimensions(PPI = 85.33333333333333){
 	return dist;
 };
 
-/* Debug code (remove later) */
-function print_stim_details(){
-	console.log('PPI:',PPI);
-	console.log('window_width:', window_w);
-	console.log('window_height:', window_h);
-	console.log('dist:', distance_from_screen);
-	console.log('total_width:', total_width);
-	console.log('stim_size:', stim_size);
-	console.log('fixation_r:', fixation_point_attr.r);
-	console.log('reward_cue_L_attr.cx:', reward_cue_L_attr.cx);
-	console.log('reward_cue_R_attr.cx:', reward_cue_R_attr.cx);
-	console.log('reward_cue_L_attr.r:', reward_cue_L_attr.r);
-	console.log('pie_attr.width:', pie_attr.width);
+function get_stim_details(){
+	var stim_details = {
+		title: 'stim_details',
+		task_dimensions: task_dimensions,
+		color_code: color_code,
+		PPI: PPI,
+		window_width: window_w,
+		window_height: window_h,
+		distance_from_screen: distance_from_screen,
+		total_width: total_width,
+		stim_size: stim_size,
+		fixation_attributes: fixation_point_attr,
+		reward_cue_L_attributes: reward_cue_L_attr,
+		reward_cue_R_attributes: reward_cue_L_attr,
+		pie_chart_attributes: pie_attr,
+		score_text_attr: score_text_attr
+	};
+	return stim_details;
 }

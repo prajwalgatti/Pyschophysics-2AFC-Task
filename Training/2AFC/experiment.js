@@ -57,6 +57,66 @@ function getstim_probe(){
 	}
 };
 
+function getstim_cue(){
+	var cue = block_info[block_num][0].Probe[trial_num];
+	var right_cue_path = ''+(cx+2)+','+(cy+probe_width)+' '+ (cx+2+2*probe_height)+','+(cy)+' '+(cx+2)+','+(cy-probe_width)+'';
+	var left_cue_path = ''+(cx-2)+','+(cy+probe_width)+' '+ (cx-2-2*probe_height)+','+(cy)+' '+(cx-2)+','+(cy-probe_width)+'';
+	if(cue == -1){
+		return '<polygon class="cue-fill"  points= "'+ left_cue_path +'"/><polygon class="cue-empty" points= "'+ right_cue_path +'"/>'; 
+	}
+	else if(cue == 1){
+		return '<polygon class="cue-empty" points= "'+ left_cue_path +'"/><polygon class="cue-fill"  points= "'+ right_cue_path +'"/>';
+	}
+};
+
+function SubmitResults(block_num){
+	/* Appends JATOS Results at the end of each block. */
+	/* Each submission contains data from the previous submissions,
+	 so choose the last appended result for analysis */
+
+	var task_finished = 'No';
+	if(block_num == numblocks-1 && trial_num == numtrials-1){
+		task_finished = 'Yes';
+	}
+
+	var resultData = {
+		Task_completed: task_finished,
+		Details: details,
+		Stim_Details: get_stim_details(),
+		Task_info: block_info,
+		Contable: Contable,
+		change_angle: change_angles[0],
+		StartTime: TrialStartTime,
+		EndTime: TrialEndTime,
+		ResponseKey: ResponseKey,
+		ResponseTime: ResponseTime,
+		current_session: numsessions,
+		Last_block: block_num
+	};
+
+	console.log(resultData);
+
+	/* Write result data to JATOS */
+	//jatos.appendResultData(resultData);
+
+	if(task_finished == "Yes"){
+		//jatos.appendResultData(jsPsych.data.get().json());
+	}
+};
+
+function ResetData(){
+	/* Reset data if entering a new session */
+ 	Contable = new Array(numblocks);
+	for(i=0; i<numblocks; i++){
+		Contable[i] = Array(4).fill(0);
+	}
+	TrialStartTime = create2darray(numblocks, numtrials, NaN);
+	TrialEndTime = create2darray(numblocks, numtrials, NaN);
+	ResponseKey = create2darray(numblocks, numtrials, NaN);
+	ResponseTime = create2darray(numblocks, numtrials, NaN);
+};
+
+
 /******************************/
 /* Variables */
 /******************************/
@@ -65,7 +125,9 @@ var block_num=0, trial_num=0;
 /* See: https://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes */
 const ResponseCode = {no_change_key: 66, change_key: 89};
 var PPI;
+var feedack_flag = true;
 var feedback_text;
+var numsessions = 1;
 /******************************/
 /* Experiment Phases/Nodes */
 /******************************/
@@ -106,6 +168,12 @@ var dist_from_screen_instruction = {
 	choices: ['Done']
 };
 
+var instructions = {
+	type: 'html-button-response',
+	stimulus: instruction_pages[0],
+	choices: ['Next']
+};
+
 var welcome = {
     type: 'html-keyboard-response',
     stimulus: 'Welcome to the experiment.',
@@ -139,8 +207,8 @@ var inter_trial_break = {
 	type: 'custom-call-function',
 	stimulus: function(){
     	return '<svg>' +
-			    '<circle class="reward-cue-left"  style="fill:'+rewardcuecolor+';"/>'+
-			    '<circle class="reward-cue-right" style="fill:'+rewardcuecolor+';"/>'+
+			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcuecolor+'"/>'+
+			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcuecolor+'"/>'+
     			'</svg>';
     		},
     async: true,
@@ -149,13 +217,30 @@ var inter_trial_break = {
         setTimeout(done, t_intertrialbreak);
 		stim.length = 0;
 		stim = generateGaborStimulus(block_num, trial_num+1, stim_size);
+		if(trial_num == numtrials-1){
+			SubmitResults(block_num);
+		}
     }
 };
 
 var end_training = {
 	type: 'html-keyboard-response',
-	stimulus: 'End of 2-AFC training. <br><br>If you would like to train again, press Y. <br>If you are finished, please contact the experimenter.',
-	choices: [89],
+	stimulus: function(){
+		if(numsessions < 2){
+			return 'End of 2-AFC training. <br><br>If you would like to train again, press Y. <br>If you are finished, please contact the experimenter.';
+		}
+		else{
+			return 'End of 2-AFC training. <br><br>Please contact the experimenter.';
+		}
+	},
+	choices: function(){
+		if(numsessions < 2){
+			return [89]; /* key Y */
+		}
+		else{
+			return jsPsych.NO_KEYS;
+		}
+	},
 	data: {test_part: 'End_training'},
 	post_trial_gap: t_train_again_onset,
 	on_start: function(){
@@ -173,7 +258,10 @@ var fixation_phase = {
     },
     choices: jsPsych.NO_KEYS,
     trial_duration: t_fixation,
-    data : {test_part: 'fixation'}
+    data : {test_part: 'fixation'},
+    on_start: function(){
+    	TrialStartTime[block_num][trial_num] = Date.now();
+    }
 };
 
 var stimulus_and_cue_phase = {
@@ -181,6 +269,7 @@ var stimulus_and_cue_phase = {
     stimulus: function(){
     	return	'<canvas id="stimulusCanvas" width="'+ window_w +'" height="'+ window_h +'"></canvas>' +
     			'<svg>' +
+    			getstim_cue() +
     			'<circle class="fixation-point" cx="'+ fixation_point_attr.cx +'" cy="'+ fixation_point_attr.cy +'" r="'+ fixation_point_attr.r +'"/>' + 
 			    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcuecolor+'"/>'+
 			    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcuecolor+'"/>'+
@@ -248,6 +337,10 @@ var probe_and_response_phase = {
     choices: [ResponseCode.no_change_key, ResponseCode.change_key],
     data: {test_part: 'Probe_and_response'},
     on_finish: function(data){
+    	if(feedack_flag == false){
+    		TrialEndTime[block_num][trial_num] = Date.now();
+    	}
+    	ResponseTime[block_num][trial_num] = data.rt;
     	feedback_text = assessResponse(data.key_press, ResponseCode, block_num, trial_num);
     }
 };
@@ -271,12 +364,18 @@ var response_feedback_gap = {
 var feedback_phase = {
 	type: 'html-keyboard-response',
 	stimulus: function(){	
-		return feedback_text;
+		return feedback_text + '<svg>'+
+		    '<circle cx="'+reward_cue_L_attr.cx+'" cy="'+reward_cue_L_attr.cy+'" r="'+reward_cue_L_attr.r+'" fill="'+rewardcuecolor+'"/>'+
+		    '<circle cx="'+reward_cue_R_attr.cx+'" cy="'+reward_cue_R_attr.cy+'" r="'+reward_cue_R_attr.r+'" fill="'+rewardcuecolor+'"/>'+
+		    '</svg>';
 	},
 	trial_duration: t_feedback,
 	choices: jsPsych.NO_KEYS,
 	data: {test_part: 'Feedback'},
 	on_finish: function(){
+		if(feedack_flag==true){
+			TrialEndTime[block_num][trial_num] = Date.now();
+		}
     	console.log(`block: ${block_num}...trial: ${trial_num}`); /* Debug code (Remove later) */
 	}
 };
@@ -310,8 +409,23 @@ var if_inter_block_break = {
 	}
 };
 
+var if_disp_feedback = {
+	timeline: [response_feedback_gap, feedback_phase],
+	conditional_function: function(){
+		if(block_num < 2 && feedack_flag == true){
+			if(block_num == 0 && trial_num == numtrials-1){
+				feedack_flag = false;
+			}
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+}
+
 var trial_timeline = [fixation_phase, stimulus_and_cue_phase, blank_phase, stimulus_change_phase,
- probe_and_response_phase, response_feedback_gap, feedback_phase, inter_trial_break];
+ probe_and_response_phase, if_disp_feedback, inter_trial_break];
 
 var trial_loop_node = {
 	timeline: trial_timeline,
@@ -348,6 +462,8 @@ var training_loop_node = {
 	timeline: training_timeline,
 	loop_function: function(data){
 		if(jsPsych.data.get().last(1).values()[0].key_press == 89){
+			numsessions++;
+			ResetData(); /* Reset data when entering a new session */
 			trial_num = 0;
 			block_num = 0;
 			return true;
@@ -358,4 +474,4 @@ var training_loop_node = {
 	}
 };
 
-var experiment_timeline = [fullscr, measure_PPI_loop_node, dist_from_screen_instruction, welcome, training_loop_node];
+var experiment_timeline = [fullscr, measure_PPI_loop_node, dist_from_screen_instruction, instructions, welcome, training_loop_node];

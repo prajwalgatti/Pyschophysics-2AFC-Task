@@ -32,14 +32,26 @@ canvas {
   stroke-width: 1;
 }
 
-.probe-empty {
+.cue-empty {
  fill: none;
  stroke: #FFFFFF;
  stroke-width: 1px;
 }
 
-.probe-fill {
+.cue-fill {
   fill: #FFFFFF;
   stroke: #FFFFFF;
+  stroke-width: 1px;
+}
+
+.probe-empty {
+ fill: none;
+ stroke: yellow;
+ stroke-width: 1px;
+}
+
+.probe-fill {
+  fill: yellow;
+  stroke: yellow;
   stroke-width: 1px;
 }
